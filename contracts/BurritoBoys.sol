@@ -15,7 +15,7 @@ contract BurritoBoys is Owner {
       return BurritoBoys[BBAddress].isEntity;
   }
   
-  function getEntityCount() public constant returns(uint numOfBurritoBoys) {
+  function getNumberOfBurritoBoys() public constant returns(uint numOfBurritoBoys) {
     return BBList.length;
   }
 
@@ -26,7 +26,7 @@ contract BurritoBoys is Owner {
     return BBList.push(entityAddress) - 1;
   }
 
-  function updateEntity(address BBAddress, uint entityData) public returns(bool success) {
+  function updateABurritoBoy(address BBAddress, uint entityData) public returns(bool success) {
     if(!isExistent(BBAddress)) revert();
     BurritoBoys[entityAddress].entityData    = entityData;
     return true;

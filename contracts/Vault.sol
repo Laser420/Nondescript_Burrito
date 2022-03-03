@@ -10,7 +10,11 @@ import "./ownership/Ownable.sol";
 * The Vault contract has an owner who is able to set the manager. The manager is
 * able to perform withdrawals. 
 */
-contract Vault is Ownable {
+
+//this contract initially derived from the OpenZepplin Ownable contract - but for simplicities sake
+//I have it deriving from the Owner contract inside this library
+//The safemath stuff is fine
+contract Vault is Owner {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
 
