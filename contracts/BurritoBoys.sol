@@ -3,6 +3,9 @@ pragma solidity >=0.7.0 <0.9.0;
 
 contract BurritoBoys is Owner {
 
+  //ADD AN ENUM FOR VARIOUS STATUS CODES OF THE BURRITOBOYS
+
+
   struct BurritoBoy {
     uint entityData;
     bool isEntity;
@@ -31,4 +34,12 @@ contract BurritoBoys is Owner {
     BurritoBoys[entityAddress].entityData    = entityData;
     return true;
   }
+
+
+  //make a function to iterate through the burritoboys and calculate things like LTV 
+  //then ultimately - somehow (unsure exactly maybe through multiple iterations via changing enums n shit)
+  //get a list of BurritoBoys that can be liquidated
+
+  
+  
 }
