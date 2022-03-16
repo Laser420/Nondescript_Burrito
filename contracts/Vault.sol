@@ -1,10 +1,12 @@
 
-pragma solidity >=0.7.0 <0.9.0;
+pragma solidity >=0.8.13;
 
 import "./zeppelin/token/ERC20/SafeERC20.sol";
 import "./zeppelin/token/ERC20/IERC20.sol";
 import "./zeppelin/math/SafeMath.sol";
 import "./ownership/Ownable.sol";
+
+// https://forum.openzeppelin.com/t/making-sure-i-understand-how-safeerc20-works/2940/2
 
 /**
 * The Vault contract has an owner who is able to set the manager. The manager is
