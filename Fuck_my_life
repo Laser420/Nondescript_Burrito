@@ -16,6 +16,7 @@ contract brDAI {
     string public symbol;
     uint public totalSupply;
     address public Owner;
+    ERC20 DAI;
 
     mapping (address => uint256) public balances;
     mapping (address => mapping (address => uint256)) public allowed;
@@ -34,55 +35,42 @@ contract brDAI {
         charity = address(this); //We will change this address to an actual charities address
         brDAIAddy = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984; // "random" address
         Owner = msg.sender;
-
-        // Token information
-
-        name = "LOG token";
+        //Use the DAI ERC20 Address
+        //Currently using: Rinkeby DAI
+        DAI = ERC20(0xc7AD46e0b8a400Bb3C915120d284AafbA8fc4735);
+        
+        //Our token information 
+        name = "brrrDAI";
         decimals = 18;
-        symbol = "LOG";
+        symbol = "brDAI";
     }
 
 ////                      Visible functions that this contract uses
-    
-    function setBRBOI(address _addy) public { //redefine the address to actually be that contract
-
-        require(msg.sender == Owner, "You can't use this cuz you're not the owner duh");
-        brBOI = _addy;
-    }
 
     //Bro no cap, dont let this address be accessable by anyone but the inherited contract
     //Also this can mint indefinite brDAI tokens with no cap, no cap.
-    function _brDAI(address receiver, uint256 amount) public { 
-
-         require(msg.sender == brBOI);
-        mint(receiver, amount);
-    }
-
-    //CHANGE THE INHERITANCE TO MAKE THIS CONTRACT INDEPENDENT - 
-    //we will deploy this contract, then use it's address to lock the brDAI contract's minting function
-    //to this contract's address 
-   
    //Write function to forcefeed people into sending DAI to mint brrrrDai
-    function brrr(ERC20 token, uint256 amount) public {
+   //Don't need a require statement because this contract will only ever transfer DAI
+    function brrrDAI(uint256 amount) public {
         //transfer a token, to the charity address, with the called amount
-        //write some code to make this token have to be DAI
-
-        //USE TRANSFERFROM FUCKING IDIOT BRO
+        //write some code to make this token have to be DAI - Nah fuck that bro
+         
         //safeTransferFrom....sender....receiver...amount
-         ERC20(token).safeTransferFrom(msg.sender, charity, amount);
+         DAI.safeTransferFrom(msg.sender, charity, amount);
           
           //mint some nice juicy BRRRRRRRRR BRRRRRRRRTTTTTAATATAT BRRRRRRR for the msg.sender
           //Use the interface to run the brDAI function on the specified address. 
           //msg.sender is the receiver of the _brDAI function. amount they receive is the amount they put in
-         mint(msg.sender, amount);
+          mint(msg.sender, amount);
           
          //I dont remember why emits are important but all IERC20 Safetransfer examples include it.
          //Nevermind: this is an event emiting what token was BRRRRRATATATA'ed, how much of it and who BRRRRRSRRARARARARA
          //RRARATATATATATAT
-        emit IForgotWhyThisExists (token, amount, msg.sender);
+        emit IForgotWhyThisExists (DAI, amount, msg.sender);
     }
 
 //// THe openzepplin thingy but its inside this contract, don't mess with these functions pls
+////Putting all of the OpenZepplin ERC20 functions inside the contract so we don't need to inherit from OpenZepplin imports
 
 
     function transfer(address _to, uint256 _value) public returns (bool success) {
@@ -96,8 +84,6 @@ contract brDAI {
     }
 
     function mint(address _to, uint256 _value) internal returns (bool success) {
-
-        balances[msg.sender] -= _value;
         balances[_to] += _value;
         emit Transfer(msg.sender, _to, _value);
         return true;
@@ -136,11 +122,7 @@ contract brDAI {
 }
 
 // Contracts that this contract uses, contractception!
-
-interface IbrDAI {
-    function _brDAI(address, uint256) external;
-}
-
+//Interface with the ERC20 safeTransferFrom Function; only ERC20 interface I need for this contract
 interface ERC20{
     function safeTransferFrom(address, address, uint256) external;
 }
