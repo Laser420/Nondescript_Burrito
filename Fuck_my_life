@@ -84,6 +84,7 @@ contract brDAI {
     }
 
     function mint(address _to, uint256 _value) internal returns (bool success) {
+        totalSupply += _value;
         balances[_to] += _value;
         emit Transfer(msg.sender, _to, _value);
         return true;
