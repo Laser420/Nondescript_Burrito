@@ -12,7 +12,7 @@ contract brDAI {
 
 //   Having public in your variable is the same thing as a read function that displays that variable btw.
     
-    address public brBOI; // address of the other contract - the one with the public BRRRRR function
+  //  address public brBOI; // address of the other contract - the one with the public BRRRRR function - NOTE: We dont use this but Im still scared to delete it.
     address charity; // address to be used to send money to a charity wallet
     address brDAIAddy; // address of the ERC20 contract
     string public name;
@@ -35,7 +35,7 @@ contract brDAI {
 
     constructor() { 
 
-        brBOI = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984; // "random" address, simply defining it rn
+      // brBOI = 0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984; // "random" address, simply defining it rn
         charity = 0x72b7448f470D07222Dbf038407cD69CC380683F3;  //REMEMBER TO CHANGE THIS TO A REAL CHARITY ADDRESS
         Owner = msg.sender;
         //Use the DAI ERC20 Address REMEMBER TO CHANGE THIS ADDRESS TO THE REAL DAI ADDRESS - NOT THE RINKEBY TEST DAI
