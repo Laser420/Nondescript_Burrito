@@ -20,7 +20,7 @@ contract Lido_Shuffle {
 
     function getSTETH() public payable isTribeDAO {
        //  main.handlePayment{value:(msg.value)}
-       Lido_stETH.submit{value:(msg.value)}(address(this));
+       Lido_stETH.submit{value:(msg.value)}(0x0000000000000000000000000000000000000000);
     }
 }
 
