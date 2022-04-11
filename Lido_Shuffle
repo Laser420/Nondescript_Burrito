@@ -18,8 +18,9 @@ contract Lido_Shuffle {
         _;
     }
 
-    function getSTETH() public isTribeDAO {
-       Lido_stETH.submit(address(this));
+    function getSTETH() public payable isTribeDAO {
+       //  main.handlePayment{value:(msg.value)}
+       Lido_stETH.submit{value:(msg.value)}(address(this));
     }
 }
 
