@@ -21,7 +21,7 @@ contract Ribbon_stETH_Covered_Calls {
 
 
     //Write a function...
-  
+    
 }
 
 interface IRibbon {
@@ -29,8 +29,19 @@ interface IRibbon {
             //DepositETH
             //Call a function to find out how many shares we receive from Depositing.
             //stake - staking those shares
+                   //This function is called by the user:
+                   //First it calls an approval for rstETH-Theta to be transferred
+                   //Then it sends the rstETH to the Ribbon address 
+                   //Then the Ribbon address sends the rstETH-Theta to itself - I dont know how tf that works but Fine
+                   //Finally, rstETH-Theta-Gauge is sent to the caller.
             //Need to find and interface with something to unstake
-            //CompleteWithdraw - ONLY withdraws stETH from first layer, nothing is unstaked
+                    //Appears to be a function called Withdraw. This might be an internal ribbon thing....
+                            //Withdraw is being called on rstETH-Theta-Gauge 
+                                    //This function is called by the main rstETH-Theta contract to interact with the rstETH-Theta-Gauge contract
+                                    //The main ribbon contract is then sent rstETH-Theta
+                                    //The rstETH-Theta-Gauge is then burned to 0x000
+            //CompleteWithdraw -
+                   // This appears to ONLY withdraws stETH from first layer. i'm unsure if it then called the Withdraw function
 }
 
 //interface IRibbonThetaSTETHVault {
