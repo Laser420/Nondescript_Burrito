@@ -27,7 +27,8 @@ contract Ribbon_stETH_Covered_Calls {
 interface IRibbon {
     //we need to interface with:
             //DepositETH
-            //stake
+            //Call a function to find out how many shares we receive from Depositing.
+            //stake - staking those shares
             //Need to find and interface with something to unstake
             //CompleteWithdraw - ONLY withdraws stETH from first layer, nothing is unstaked
 }
