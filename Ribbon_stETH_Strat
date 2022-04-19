@@ -39,7 +39,7 @@ interface IRibbon {
 
     //Process for withdrawing shit:
                    // We use an different interface now, we make another interface to read/write the rstETH-Theta-Gauge contract. I simply cant figure out how Ribbon does
-                   // this process internally so instead we make it happen manually for claritie's sake. 
+                   // this process internally so instead we make it happen manually for clarity's sake. 
                       //`Withdraw` called on rstETH-Theta-Gauge - IrstETH-Theta-Gauge
                                     //This function is called by the caller contract to interact with the rstETH-Theta-Gauge contract.
                                     //The caller contract is then sent rstETH-Theta
