@@ -25,24 +25,32 @@ contract Ribbon_stETH_Covered_Calls {
 }
 
 interface IRibbon {
-    //we need to interface with:
-            //DepositETH
+
+    //Process for depositing shit:
+            //DepositETH - IRibbon
             //Call a function to find out how many shares we receive from Depositing.
-            //stake - staking those shares
+            //stake - staking those shares - IRibbon
                    //This function is called by the user:
                    //First it calls an approval for rstETH-Theta to be transferred
                    //Then it sends the rstETH to the Ribbon address 
                    //Then the Ribbon address sends the rstETH-Theta to itself - I dont know how tf that works but Fine
                    //Finally, rstETH-Theta-Gauge is sent to the caller.
-            //Need to find and interface with something to unstake
-                    //Appears to be a function called Withdraw. This might be an internal ribbon thing....
-                            //Withdraw is being called on rstETH-Theta-Gauge 
-                                    //This function is called by the main rstETH-Theta contract to interact with the rstETH-Theta-Gauge contract
-                                    //The main ribbon contract is then sent rstETH-Theta
+           
+
+    //Process for withdrawing shit:
+                   // We use an different interface now, we make another interface to read/write the rstETH-Theta-Gauge contract. I simply cant figure out how Ribbon does
+                   // this process internally so instead we make it happen manually for claritie's sake. 
+                      //`Withdraw` called on rstETH-Theta-Gauge - IrstETH-Theta-Gauge
+                                    //This function is called by the caller contract to interact with the rstETH-Theta-Gauge contract.
+                                    //The caller contract is then sent rstETH-Theta
                                     //The rstETH-Theta-Gauge is then burned to 0x000
-            //CompleteWithdraw -
-                   // This appears to ONLY withdraws stETH from first layer. i'm unsure if it then called the Withdraw function
+                  //Now our rstETH-Theta-Gauge is no longer tied up.
+                  //move onto the two-step process of withdrawing from the main pool:
+                       //Initializewithdraw - this is not the correct name: need to get into explaining this
+                       //CompleteWithdraw - correct name: need to get into explaining this
+                             // I've figured it out....need to finish typing this out.
 }
 
-//interface IRibbonThetaSTETHVault {
+//interface IrstETH-Theta-Gauge {
+     //this contract is written in Vyper.....oh fuck me
 //}
