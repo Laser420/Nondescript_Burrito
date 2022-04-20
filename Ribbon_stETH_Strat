@@ -38,8 +38,8 @@ interface IRibbon {
            
 
     //Process for withdrawing shit:
-                   // We use an different interface now, we make another interface to read/write the rstETH-Theta-Gauge contract. I simply cant figure out how Ribbon does
-                   // this process internally so instead we make it happen manually for clarity's sake. 
+                   // Ribbon's contract for staking rstETH-Theta into rst-ETH-Theta-Gauge is an independent Vyper contract. You can stake off of the primary rstETH-Theta 
+                   //contract but you cannot withdraw without interacting with the THETA-GAUGE contract.
                       //`Withdraw` called on rstETH-Theta-Gauge - IrstETH-Theta-Gauge
                                     //This function is called by the caller contract to interact with the rstETH-Theta-Gauge contract.
                                     //The caller contract is then sent rstETH-Theta
