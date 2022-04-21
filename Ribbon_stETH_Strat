@@ -24,16 +24,16 @@ contract Ribbon_stETH_Covered_Calls {
     
 }
 
-interface IRibbon {
+//NOTES TO MYSELF:
 
-    //Process for depositing shit:
-            //DepositETH - IRibbon
+  //Process for depositing Ribbon:
+            //DepositETH - uses IRibbon interface
             //Call a function to find out how many shares we receive from Depositing.
             //stake - staking those shares - IRibbon
+            //This function takes the shares that the caller has inside the vault and 
                    //This function is called by the user:
                    //First it calls an approval for rstETH-Theta to be transferred
-                   //Then it sends the rstETH to the Ribbon address 
-                   //Then the Ribbon address sends the rstETH-Theta to itself - I dont know how tf that works but Fine
+                   //Then it sends the rstETH-Theta to the Liquidity-Gauge using the ILiquidityGauge deposit function
                    //Finally, rstETH-Theta-Gauge is sent to the caller.
            
 
@@ -49,6 +49,14 @@ interface IRibbon {
                        //Initializewithdraw - this is not the correct name: need to get into explaining this
                        //CompleteWithdraw - correct name: need to get into explaining this
                              // I've figured it out....need to finish typing this out.
+
+
+
+
+
+interface IRibbon {
+
+  
 }
 
 //interface IrstETH-Theta-Gauge {
