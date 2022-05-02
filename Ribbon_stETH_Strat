@@ -46,12 +46,10 @@ contract Ribbon_stETH_Covered_Calls {
                                     //The rstETH-Theta-Gauge is then burned to 0x000
                   //Now our rstETH-Theta-Gauge is no longer tied up.
                   //move onto the two-step process of withdrawing from the main pool:
-                       //Initializewithdraw - this is not the correct name: need to get into explaining this
+                       //Initializewithdraw - that is roughly the correct name
                             //Needs to happen before the next option is minted on Friday at 10:00 AM UTC. 
-                       //CompleteWithdraw - correct name: need to get into explaining this
-                             // I've figured it out....need to finish typing this out.
-
-
+                       //CompleteWithdraw - roughly the correct name.
+                             // Can occur after Friday at 10:00am UTC when your shares have been excluded from the new option. 
 
 
 
