@@ -5,12 +5,12 @@ pragma solidity ^0.8.0;
 contract Ribbon_stETH_Covered_Calls {
     address TRIBE_Treasury;
     IRibbon Ribbon_IR;
-  //IRibbonThetaSTETHVault Ribbon_TSV; Interfacing with the same contract is pointless
+  //IRibbonThetaSTETHVault Ribbon_TSV; - eventually will be interface to rstETH-Theta-Gauge vault
     
     constructor() {
         TRIBE_Treasury = 0x7E3Ee99EC9b2aBd42c8c8504dc8195C8dc4942D0; // currently my testnet address - Change to Tribe_DAO Address
         //I AM THE TRIBE
-        Ribbon_IR = IRibbon(0x53773E034d9784153471813dacAFF53dBBB78E8c); // Ribbon 
+        Ribbon_IR = IRibbon(0x53773E034d9784153471813dacAFF53dBBB78E8c); // Ribbon stETH Covered Call vault option
     }
 
     // modifier to check if caller is the Tribe DAO or not
@@ -30,12 +30,36 @@ contract Ribbon_stETH_Covered_Calls {
     */ 
     
     //<Layer One>
-  
     // function DepositTheETH - deposit the ETH into the RBN contract and create the first layer
-    
-    //function checkVaultBalance -  helper function for obtaining the number of shares we have in layer 1
    
+    //function checkVaultBalance -  helper function for obtaining the number of shares we have in layer one vault, independently available 
     
+    //function beginStaking - stakes the shares we have in layer one and puts them ito layer two
+        //checkVaultBalance
+        //Stake
+   
+    //function layerOneWithdraw - begin Layer One withdrawal process, note that because we have unstaked from layer two at this point, we call balanceOf and not checkVaultBalance since our vault shares are already redeemed (ie. held by the contract and not inside the RBN vault)
+    
+    //function finishWithdraw - complete Layer One withdrawal process
+    //<Layer One End>
+    
+    
+    //<Layer Two>    
+    //function layerTwoWithdraw - withdraw from Layer Two - exchange rstETH-Theta-Gauge for rstETH-Theta
+    
+    //function userCheckpoint ?????
+   //<Layer Two End>
+   
+   
+   /* <Multi-Step Calls> 
+   *These calls are intended to be used by the DAO for simplicities sake by stacking as many Layer One and Layer Two functions into one single action
+   * I understand that this increases initial contract deployment cost simply because there are more characters for the EVM to gas profile, let alone stacking pre-built functions.
+   * However, I felt it prudent to leave the oppurtunity to call functions step-by-step if neccessary, instead of leaving a crucial function within a multi-step call.
+   */ This also makes the DAO's investment strategy more tailorable and able to shift from Layer One to Layer Two and back. 
+   
+   //Haven't finished profiling these out yet.
+   
+   //<Multi-Step Calls End>
 }
 
 
