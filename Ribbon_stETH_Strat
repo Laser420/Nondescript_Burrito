@@ -19,11 +19,39 @@ contract Ribbon_stETH_Covered_Calls {
         _;
     }
 
-
-    //Write a function...
-    
+    /* This financial strategy has two primary layers to it.
+    * The first layer consists of a deposit of raw ETH into the rstETH-Theta vault. The raw ETH is turned into stETH by RBN before depositing.
+    * Now this stETH is sitting inside the rstETH-Theta vault in the form of rstETH-Theta. 
+    *
+    *
+    *
+    */
 }
 
+
+interface IRibbon {
+ //Interface with the ribbon contract
+ 
+ //Deposit - deposit shares into the vault, - Layer 1
+ //RibbonVault.shares - get the # of shares we have in the vault - Layer 1
+ //Stake - stake the shares into the rstETH-Theta-Gauge vault, you receive rstETH-Theta-Gauge - Layer 1
+ //InitializeWithdraw - begins the withdrawal process, marks your shares to not be included in the next option round (occurs at 10:00 am UTC) - Layer 1
+ //CompleteWithdraw - finishes the withdrawal process, only callabled after you initialized the withdrawl and the option round has concluded - Layer 1
+  
+}
+
+//interface IrstETH-Theta-Gauge {
+     //Interfacing with rstETH-Theta-Gauge - this contract is written in Vyper...fuck me 
+    //Withdraw - takes your rstETH-Theta-Gauge and burns it, giving you your rstETH-Theta back. Layer 2 withdrawal.
+    //User_Checkpoint?????? Only one I don't understand yet
+    
+//}
+
+
+
+
+
+//DONT WORRY ABOUT READING THESE, I'VE COMMMENTED THE CODE ABOVE FOR READERS, THE COMMENTS BELOW ARE PERSONAL NOTES AND A BIG FRAGMENTED
 //NOTES TO MYSELF:
 
   //Process for depositing Ribbon:
@@ -44,6 +72,7 @@ contract Ribbon_stETH_Covered_Calls {
                                     //This function is called by the caller contract to interact with the rstETH-Theta-Gauge contract.
                                     //The caller contract is then sent rstETH-Theta
                                     //The rstETH-Theta-Gauge is then burned to 0x000
+                                 // Unlike when initially depositing, the caller directly receives the rst-ETH - doesnt change the second layer
                   //Now our rstETH-Theta-Gauge is no longer tied up.
                   //move onto the two-step process of withdrawing from the main pool:
                        //Initializewithdraw - that is roughly the correct name
@@ -51,13 +80,3 @@ contract Ribbon_stETH_Covered_Calls {
                        //CompleteWithdraw - roughly the correct name.
                              // Can occur after Friday at 10:00am UTC when your shares have been excluded from the new option. 
 
-
-
-interface IRibbon {
- //Interface with the ribbon contract
-  
-}
-
-//interface IrstETH-Theta-Gauge {
-     //Interfacing with rstETH-Theta-Gauge - this contract is written in Vyper...fuck me 
-//}
