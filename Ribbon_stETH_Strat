@@ -28,7 +28,7 @@ contract Ribbon_stETH_Covered_Calls {
 
   //Process for depositing Ribbon:
             //DepositETH - uses IRibbon interface
-            //Call a function to find out how many shares we receive from Depositing.
+            //Read `RibbonVault.shares` - your shares only appear after 10:00 AM UTC on Fridays. 
             //stake - staking those shares - IRibbon
             //This function takes the shares that the caller has inside the vault and 
                    //This function is called by the user:
@@ -47,6 +47,7 @@ contract Ribbon_stETH_Covered_Calls {
                   //Now our rstETH-Theta-Gauge is no longer tied up.
                   //move onto the two-step process of withdrawing from the main pool:
                        //Initializewithdraw - this is not the correct name: need to get into explaining this
+                            //Needs to happen before the next option is minted on Friday at 10:00 AM UTC. 
                        //CompleteWithdraw - correct name: need to get into explaining this
                              // I've figured it out....need to finish typing this out.
 
@@ -55,10 +56,10 @@ contract Ribbon_stETH_Covered_Calls {
 
 
 interface IRibbon {
-
+ //Interface with the ribbon contract
   
 }
 
 //interface IrstETH-Theta-Gauge {
-     //this contract is written in Vyper.....oh fuck me
+     //Interfacing with rstETH-Theta-Gauge - this contract is written in Vyper...fuck me 
 //}
