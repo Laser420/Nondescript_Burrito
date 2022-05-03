@@ -34,18 +34,20 @@ contract Ribbon_stETH_Covered_Calls {
    
     //function checkVaultBalance -  helper function for obtaining the number of shares we have in layer one vault, independently available 
     
-    //function beginStaking - stakes the shares we have in layer one and puts them ito layer two
-        //checkVaultBalance
-        //Stake
-   
+    //function stake - stakes the shares we have in layer one and puts them ito layer two
+  
     //function layerOneWithdraw - begin Layer One withdrawal process, note that because we have unstaked from layer two at this point, we call balanceOf and not checkVaultBalance since our vault shares are already redeemed (ie. held by the contract and not inside the RBN vault)
     
-    //function finishWithdraw - complete Layer One withdrawal process
+    //function finishLayerOneWithdraw - complete Layer One withdrawal process
+    
     //<Layer One End>
     
     
     //<Layer Two>    
     //function layerTwoWithdraw - withdraw from Layer Two - exchange rstETH-Theta-Gauge for rstETH-Theta
+    
+    //function layerTwoDeposit - this function is what is actually called internally within the Stake function once shares are redeemed
+                                //I am adding this for the rare but possible instance where the DAO has withdrawn from Layer Two and then wants to go back instead of continuing to withdraw from Layer one
     
     //function userCheckpoint ?????
    //<Layer Two End>
@@ -75,12 +77,12 @@ interface IRibbon {
  
 }
 
-//interface IrstETH-Theta-Gauge {
+//interface IrstETH-Theta-Gauge { 
      //Interfacing with rstETH-Theta-Gauge - this contract is written in Vyper...fuck me 
     //Withdraw - takes your rstETH-Theta-Gauge and burns it, giving you your rstETH-Theta back. Layer 2 withdrawal.
     //balanceOf - checks to see the current balance of rstETH-Theta-Gauge tokens
     //User_Checkpoint?????? Only one I don't understand yet
-    
+    //Deposit - the function that allows
 //}
 
 
