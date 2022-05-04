@@ -120,7 +120,8 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
 */
 
     //ClaimRewards - claiming the RBN rewards
-    function claim_rewards(address, address) external;
+    function claim_rewards() external;
+    //function claim_rewards(address, address) external; - I originally wrote this but I believe this version is only neccessary if you have set a specific receiver of your rewards
 /* How the "claim_rewards" function looks on the Layer Two contract: yes this is because I lack confidence in reading Vyper...same old same old
  *
  *@external
@@ -138,6 +139,10 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
 interface RBN {
     //need to interface with the RBN token to allow our contract to send the RBN rewards elsewhere
     
+}
+
+interface stETH {
+    //Need to allow our contract to send stETH thats been withdrawn from the system
 }
 
 //ERC20 interface neccessary for interacting with ERC20 tokens
