@@ -77,32 +77,33 @@ interface IRibbon { //Interface with the ribbon contract
 
 
  //Stake - stake the shares into the rstETH-Theta-Gauge vault, you receive rstETH-Theta-Gauge - Layer 1
-  function stake(uint256) external;
+  function stake(uint256) external; //uint256 = num of shares staked
+  
 
  //InitializeWithdraw - begins the withdrawal process, marks your shares to not be included in the next option round (occurs at 10:00 am UTC) - Layer 1
-  function initiateWithdraw(uint256) external;
+  function initiateWithdraw(uint256) external; //uint256 = num of shares to withdraw
 
  //CompleteWithdraw - finishes the withdrawal process, only callabled after you initialized the withdrawl and the option round has concluded - Layer 1
-  function completeWithdraw() external;
+  function completeWithdraw() external; 
 
  //balanceOf - checks our balance of rstETH-Theta if the shares are redeemed (not inside the vault), shares recently withdrawn from staking program will not be inside the vault - making this neccessary
-  function balanceOf(address) external view returns (uint256);
+  function balanceOf(address) external view returns (uint256); 
 
  //redeem - redeems the tokens from the vault for this contract to hold its rstETH-Theta directly (function exists just in case)
- function redeem(uint256) external;
+ function redeem(uint256) external; //uint256 = num of shares to redeem
 
  //maxRedeem - redeems the maximum amount of tokens from the vault
- function maxRedeem() external ;
+ function maxRedeem() external ; 
        
 
 }
 
 interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this contract is written in Vyper...fuck me 
     //balanceOf - checks to see the current balance of rstETH-Theta-Gauge tokens
-    function balanceOf(address) external view returns (uint256);
+    function balanceOf(address) external view returns (uint256); 
 
     //Withdraw - takes your rstETH-Theta-Gauge and burns it, giving you your rstETH-Theta back. Layer 2 withdrawal.
-    function withdraw(uint256, bool) external; 
+    function withdraw(uint256, bool) external; //uint256 = value of shares withdrawn, bool = whether or not to redeem any current rewards 
  /* How "Withdraw" looks on the Layer Two contract: yes I am putting this here to make it easier for people to vet my code since I'm uncomfy with Vyper
  * 
  * @external
@@ -111,7 +112,7 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
  */
 
     //ClaimableRewards - see what we can actually claim, views function
-    function claimable_rewards(address, address) external view returns (uint256);
+    function claimable_rewards(address, address) external view returns (uint256); //address = address to check the rewards of, address = reward token address
 /* same shit, lack confidence, need to keep reference to Vyper code on page
 *@view
 *@external
@@ -119,7 +120,7 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
 */
 
     //ClaimRewards - claiming the RBN rewards
-    function claim_rewards(address, address) external; 
+    function claim_rewards(address, address) external;
 /* How the "claim_rewards" function looks on the Layer Two contract: yes this is because I lack confidence in reading Vyper...same old same old
  *
  *@external
