@@ -2,6 +2,8 @@
 
 pragma solidity ^0.8.0;
 
+// https://reference.auditless.com/cheatsheet/ - cheat sheet between Solidity and Vyper
+
 contract Ribbon_stETH_Covered_Calls {
     address DAO_Treasury;
     IRibbon rstETH_TV_Interface;
