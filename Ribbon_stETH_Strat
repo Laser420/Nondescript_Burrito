@@ -6,14 +6,14 @@ contract Ribbon_stETH_Covered_Calls {
     ERC20 RBN; //RBN
     ERC20 stETH; //stETH token
     address DAO_Treasury;
-    IRibbon rstETH_TV_Interface;
-    IrstETH_Theta_Gauge rstETH_TGV_Interface; 
+    IRibbon rstETH_TV;
+    IrstETH_Theta_Gauge rstETH_TGV; 
     //Need to interface to RBN Token at some point.
     
     constructor() {
         DAO_Treasury = 0x7E3Ee99EC9b2aBd42c8c8504dc8195C8dc4942D0; // currently my testnet address - Change to the DAO Address
-        rstETH_TV_Interface = IRibbon(0x53773E034d9784153471813dacAFF53dBBB78E8c); // Ribbon stETH Covered Call vault option
-        rstETH_TGV_Interface = IrstETH_Theta_Gauge(0x4e079dCA26A4fE2586928c1319b20b1bf9f9be72); // Ribbon stETh Covered Call Gauge Token vault
+        rstETH_TV = IRibbon(0x53773E034d9784153471813dacAFF53dBBB78E8c); // Ribbon stETH Covered Call vault option
+        rstETH_TGV = IrstETH_Theta_Gauge(0x4e079dCA26A4fE2586928c1319b20b1bf9f9be72); // Ribbon stETh Covered Call Gauge Token vault
     }
 
     // modifier to check if caller is the Tribe DAO or not
@@ -33,11 +33,18 @@ contract Ribbon_stETH_Covered_Calls {
     */ 
     
     //<Layer One>
-    // function DepositTheETH - deposit the ETH into the RBN contract and create the first layer
-   
-    //function checkVaultBalance -  helper function for obtaining the number of shares we have in layer one vault, independently available 
+    function DepositTheETH() external isDAO payable{
+        rstETH_TV.depositETH();
+    } //deposit the ETH into the RBN contract and create the first layer
     
-    //function stake - stakes the shares we have in layer one and puts them ito layer two
+
+    function checkVaultBalance() external isDAO view returns(uint256 _returnVal) {
+      _returnVal = rstETH_TV.shares();
+    } //helper function for obtaining the number of shares we have in layer one vault, independently available 
+    
+    function stake(uint256 sharesToStake) external isDAO { 
+      rstETH_TV.stake(sharesToStake);
+    }// stakes the shares we have in layer one and puts them ito layer two
   
     //function layerOneWithdraw - begin Layer One withdrawal process, note that because we have unstaked from layer two at this point, we call balanceOf and not checkVaultBalance since our vault shares are already redeemed (ie. held by the contract and not inside the RBN vault)
     
