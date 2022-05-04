@@ -69,15 +69,31 @@ contract Ribbon_stETH_Covered_Calls {
 interface IRibbon {
  //Interface with the ribbon contract
  
- //Deposit - deposit shares into the vault, - Layer 1
-
+ //Deposit - deposit ETH to be minted into vault shares, - Layer 1
+ function depositETH() external payable;
 
  //RibbonVault.shares - get the # of shares we have in the vault - Layer 1
+
+
  //Stake - stake the shares into the rstETH-Theta-Gauge vault, you receive rstETH-Theta-Gauge - Layer 1
+
+
  //InitializeWithdraw - begins the withdrawal process, marks your shares to not be included in the next option round (occurs at 10:00 am UTC) - Layer 1
+  function initiateWithdraw(uint256) external;
+
  //CompleteWithdraw - finishes the withdrawal process, only callabled after you initialized the withdrawl and the option round has concluded - Layer 1
- //balanceOf - checks our balance of rstETH-Theta if the shares are redeemed (not inside the vault)
- 
+  function completeWithdraw() external;
+
+ //balanceOf - checks our balance of rstETH-Theta if the shares are redeemed (not inside the vault), shares recently withdrawn from staking program will not be inside the vault - making this neccessary
+  function balanceOf(address) external view returns (uint256);
+
+ //redeem - redeems the tokens from the vault for this contract to hold its rstETH-Theta directly (function exists just in case)
+ function redeem(uint256) external;
+
+ //maxRedeem - redeems the maximum amount of tokens from the vault
+ function maxRedeem() external ;
+       
+
 }
 
 interface IrstETH_Theta_Gauge { 
@@ -92,8 +108,8 @@ interface IrstETH_Theta_Gauge {
 
     //User_Checkpoint?????? Only one I don't understand yet
 
-    function deposit(uint256 _value, address _addr, bool _claim_rewards) external;
     //Deposit - the function that allows the user to deposit into the Gauge vault - called by the "Stake" function in Layer one
+    function deposit(uint256 _value, address _addr, bool _claim_rewards) external;
 }
 
 //ERC20 interface neccessary for interacting with ERC20 tokens
@@ -118,33 +134,3 @@ interface IERC20 {
     uint256 value
   );
 }
-
-//DONT WORRY ABOUT READING THESE, I'VE COMMMENTED THE CODE ABOVE FOR READERS, THE COMMENTS BELOW ARE PERSONAL NOTES AND A BIG FRAGMENTED
-//NOTES TO MYSELF:
-
-  //Process for depositing Ribbon:
-            //DepositETH - uses IRibbon interface
-            //Read `RibbonVault.shares` - your shares only appear after 10:00 AM UTC on Fridays. 
-            //stake - staking those shares - IRibbon
-            //This function takes the shares that the caller has inside the vault 
-            //NOTE THIS FUNCTION REDEEMS YOUR TOKENS AND THEN SENDS THEM ON THEIR WAY
-                   //This function is called by the user:
-                   //First it calls an approval for rstETH-Theta to be transferred
-                   //Then it sends the rstETH-Theta to the Liquidity-Gauge using the ILiquidityGauge deposit function
-                   //Finally, rstETH-Theta-Gauge is sent to the caller.
-           
-
-    //Process for withdrawing shit:
-                   // Ribbon's contract for staking rstETH-Theta into rst-ETH-Theta-Gauge is an independent Vyper contract. You can stake off of the primary rstETH-Theta 
-                   //contract but you cannot withdraw without interacting with the THETA-GAUGE contract.
-                      //`Withdraw` called on rstETH-Theta-Gauge - IrstETH-Theta-Gauge
-                                    //This function is called by the caller contract to interact with the rstETH-Theta-Gauge contract.
-                                    //The caller contract is then sent rstETH-Theta
-                                    //The rstETH-Theta-Gauge is then burned to 0x000
-                                 // Unlike when initially depositing, the caller directly receives the rst-ETH - doesnt change the second layer
-                  //Now our rstETH-Theta-Gauge is no longer tied up.
-                  //move onto the two-step process of withdrawing from the main pool:
-                       //Initializewithdraw - that is roughly the correct name
-                            //Needs to happen before the next option is minted on Friday at 10:00 AM UTC. 
-                       //CompleteWithdraw - roughly the correct name.
-                             // Can occur after Friday at 10:00am UTC when your shares have been excluded from the new option. 
