@@ -31,9 +31,12 @@ contract Ribbon_stETH_Covered_Calls {
     * To undo the investment requires first withdrawing from the second layer via calling the Withdraw function on the rstETH-Theta-Gauge contract.
     * Then to undo the first layer requires calling the InitializeWithdraw function before then calling the CompleteWithdraw function.
     */ 
+
+    //Hurr de durr, Onions have layers
+    //Im going fucking insane. 
     
-    //<Layer One>
-    function DepositTheETH() external isDAO payable{
+    //<LAYER ONE FUNCTIONS>
+    function DepositTheETH() external isDAO payable{ //NOTE: Investigate payable functions just to be sure
         rstETH_TV.depositETH();
     } //deposit the ETH into the RBN contract and create the first layer
     
@@ -44,13 +47,17 @@ contract Ribbon_stETH_Covered_Calls {
     
     function stake(uint256 sharesToStake) external isDAO { 
       rstETH_TV.stake(sharesToStake);
-    }// stakes the shares we have in layer one and puts them ito layer two
+    } // stakes the shares we have in layer one and puts them ito layer two
   
-    //function layerOneWithdraw - begin Layer One withdrawal process, note that because we have unstaked from layer two at this point, we call balanceOf and not checkVaultBalance since our vault shares are already redeemed (ie. held by the contract and not inside the RBN vault)
+    function layerOneWithdraw(uint256 amtToWithdraw) external isDAO {
+      rstETH_TV.initiateWithdraw(amtToWithdraw);
+    } //begin Layer One withdrawal process, marks your shares to be excluded from the next minting option.    \
+    //REMOVE THIS LATER: For MultiCall purposes: note that because we have unstaked from layer two at this point, we call balanceOf and not checkVaultBalance since our vault shares are already redeemed (ie. held by the contract and not inside the RBN vault)
     
-    //function finishLayerOneWithdraw - complete Layer One withdrawal process
-    
-    //<Layer One End>
+    function finishLayerOneWithdraw() external isDAO {
+      rstETH_TV.completeWithdraw();
+    } //complete Layer One withdrawal process, can occur once the next vault option has been minted and your tokens were excluded - 10:00am UTC on Fridays
+    //<LAYER ONE FUNCTIONS END>
     
     
     //<Layer Two>    
