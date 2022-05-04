@@ -159,6 +159,10 @@ interface RBNtoken {
     
 }
 
+interface stETH {
+  //Interfacing to react with stETH
+}
+
 //ERC20 interface neccessary for interacting with ERC20 tokens
 interface ERC20 {
   function totalSupply() external view returns (uint256);
