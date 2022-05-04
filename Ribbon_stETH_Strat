@@ -34,8 +34,20 @@ contract Ribbon_stETH_Covered_Calls {
     * Then to undo the first layer requires calling the InitializeWithdraw function before then calling the CompleteWithdraw function.
     */ 
 
-    //Hurr de durr, Onions have layers
-    //Im going fucking insane. 
+     /* <Multi-Step Calls> 
+   *These calls are intended to be used by the DAO for simplicitie's sake by stacking as many Layer One and Layer Two functions into one single action
+   * I understand that having all the different Layer functions increase initial contract deployment cost simply because there are more characters for the EVM to gas profile, let alone stacking pre-built functions.
+   * However, I felt it prudent to leave the oppurtunity to call functions step-by-step if neccessary, instead of leaving a crucial function within a multi-step call.
+   *This also makes the DAO's investment strategy more tailorable and able to shift from Layer One to Layer Two and back. 
+   */  
+   
+   //Haven't finished profiling these out yet.
+   
+   //<Multi-Step Calls End>
+
+
+
+     //Now we get into Layer One and Layer Two functions. All the Multi-step functions build ontop of these functions. 
     
     //<LAYER ONE FUNCTIONS>
     function DepositTheETH() external isDAO payable{ //NOTE: Investigate payable functions just to be sure
@@ -74,18 +86,6 @@ contract Ribbon_stETH_Covered_Calls {
     //function userCheckpoint ?????
 
    //<LAYER TWO END>
-   
-   
-   /* <Multi-Step Calls> 
-   *These calls are intended to be used by the DAO for simplicities sake by stacking as many Layer One and Layer Two functions into one single action
-   * I understand that this increases initial contract deployment cost simply because there are more characters for the EVM to gas profile, let alone stacking pre-built functions.
-   * However, I felt it prudent to leave the oppurtunity to call functions step-by-step if neccessary, instead of leaving a crucial function within a multi-step call.
-   *This also makes the DAO's investment strategy more tailorable and able to shift from Layer One to Layer Two and back. 
-   */  
-   
-   //Haven't finished profiling these out yet.
-   
-   //<Multi-Step Calls End>
 }
 
 
