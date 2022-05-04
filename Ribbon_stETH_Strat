@@ -6,6 +6,7 @@ contract Ribbon_stETH_Covered_Calls {
     address DAO_Treasury;
     IRibbon rstETH_TV_Interface;
     IrstETH_Theta_Gauge rstETH_TGV_Interface; 
+    //Need to interface to RBN Token at some point.
     
     constructor() {
         DAO_Treasury = 0x7E3Ee99EC9b2aBd42c8c8504dc8195C8dc4942D0; // currently my testnet address - Change to the DAO Address
@@ -66,9 +67,7 @@ contract Ribbon_stETH_Covered_Calls {
 }
 
 
-interface IRibbon {
- //Interface with the ribbon contract
- 
+interface IRibbon { //Interface with the ribbon contract
  //Deposit - deposit ETH to be minted into vault shares, - Layer 1
  function depositETH() external payable;
 
@@ -96,9 +95,7 @@ interface IRibbon {
 
 }
 
-interface IrstETH_Theta_Gauge { 
-     //Interfacing with rstETH-Theta-Gauge - this contract is written in Vyper...fuck me 
-
+interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this contract is written in Vyper...fuck me 
     //balanceOf - checks to see the current balance of rstETH-Theta-Gauge tokens
     function balanceOf(address) external view returns (uint256);
 
@@ -119,7 +116,6 @@ interface IrstETH_Theta_Gauge {
 *def claimable_reward(_user: address, _reward_token: address) -> uint256:
 */
 
-
     //ClaimRewards - claiming the RBN rewards
     function claim_rewards(address, address) external; 
 /* How the "claim_rewards" function looks on the Layer Two contract: yes this is because I lack confidence in reading Vyper...same old same old
@@ -129,7 +125,7 @@ interface IrstETH_Theta_Gauge {
  *def claim_rewards(_addr: address = msg.sender, _receiver: address = ZERO_ADDRESS):
  */
 
-    //User_Checkpoint?????? Only one I don't understand yet
+    //User_Checkpoint?????? Only one I don't understand yet - ask on RBN discord
 
     //Deposit - the function that allows the user to deposit into the Gauge vault - called by the "Stake" function in Layer one
     function deposit(uint256 _value, address _addr, bool _claim_rewards) external;
@@ -138,6 +134,7 @@ interface IrstETH_Theta_Gauge {
 
 interface RBN {
     //need to interface with the RBN token to allow our contract to send the RBN rewards elsewhere
+    
 }
 
 //ERC20 interface neccessary for interacting with ERC20 tokens
