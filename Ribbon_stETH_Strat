@@ -111,7 +111,23 @@ interface IrstETH_Theta_Gauge {
  * def withdraw(_value: uint256, _claim_rewards: bool = False): 
  */
 
+    //ClaimableRewards - see what we can actually claim, views function
+    function claimable_rewards(address, address) external view returns (uint256);
+/* same shit, lack confidence, need to keep reference to Vyper code on page
+*@view
+*@external
+*def claimable_reward(_user: address, _reward_token: address) -> uint256:
+*/
+
+
     //ClaimRewards - claiming the RBN rewards
+    function claim_rewards(address, address) external; 
+/* How the "claim_rewards" function looks on the Layer Two contract: yes this is because I lack confidence in reading Vyper...same old same old
+ *
+ *@external
+ *@nonreentrant('lock')
+ *def claim_rewards(_addr: address = msg.sender, _receiver: address = ZERO_ADDRESS):
+ */
 
     //User_Checkpoint?????? Only one I don't understand yet
 
