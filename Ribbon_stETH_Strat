@@ -76,7 +76,7 @@ interface IRibbon {
 
 
  //Stake - stake the shares into the rstETH-Theta-Gauge vault, you receive rstETH-Theta-Gauge - Layer 1
-
+  function stake(uint256) external;
 
  //InitializeWithdraw - begins the withdrawal process, marks your shares to not be included in the next option round (occurs at 10:00 am UTC) - Layer 1
   function initiateWithdraw(uint256) external;
