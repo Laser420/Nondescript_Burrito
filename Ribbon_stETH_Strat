@@ -43,7 +43,7 @@ contract Ribbon_stETH_Covered_Calls {
     } //deposit the ETH into the RBN contract and create the first layer
     
     function checkVaultBalance() external isDAO view returns(uint256 _returnVal) {
-      _returnVal = rstETH_TV.shares();
+      _returnVal = rstETH_TV.shares(msg.sender);
     } //helper function for obtaining the number of shares we have in layer one vault, independently available 
     
     function stake(uint256 sharesToStake) external isDAO { 
@@ -95,7 +95,7 @@ interface IRibbon { //Interface with the ribbon contract
 
  //RibbonVault.shares - get the # of shares we have in the vault - Layer 1
   //NOTE: this function is placeholder until confirmation that this is the proper way to read a readable value?
-  function shares() external view returns (uint256);
+  function shares(address) external view returns (uint256);
 
  //Stake - stake the shares into the rstETH-Theta-Gauge vault, you receive rstETH-Theta-Gauge - Layer 1
   function stake(uint256) external;
