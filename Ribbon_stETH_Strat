@@ -32,28 +32,22 @@ contract Ribbon_stETH_Covered_Calls {
     * Now the investment is in its second layer and holding the rstETH-Theta-Gauge tokens allows the contract access to RBN rewards. 
     * To undo the investment requires first withdrawing from the second layer via calling the Withdraw function on the rstETH-Theta-Gauge contract.
     * Then to undo the first layer requires calling the InitializeWithdraw function before then calling the CompleteWithdraw function.
-    */ 
-
-     /* <Multi-Step Calls> 
-   *These calls are intended to be used by the DAO for simplicitie's sake by stacking as many Layer One and Layer Two functions into one single action
-   * I understand that having all the different Layer functions increase initial contract deployment cost simply because there are more characters for the EVM to gas profile, let alone stacking pre-built functions.
-   * However, I felt it prudent to leave the oppurtunity to call functions step-by-step if neccessary, instead of leaving a crucial function within a multi-step call.
-   *This also makes the DAO's investment strategy more tailorable and able to shift from Layer One to Layer Two and back. 
-   */  
-   
-   //Haven't finished profiling these out yet.
-   
-   //<Multi-Step Calls End>
-
-
+    */
 
      //Now we get into Layer One and Layer Two functions. All the Multi-step functions build ontop of these functions. 
     
-    //<LAYER ONE FUNCTIONS>
-    function DepositTheETH() external isDAO payable{ //NOTE: Investigate payable functions just to be sure
-        rstETH_TV.depositETH();
+    /*
+    *<LAYER ONE FUNCTIONS> Interacting with the rstETH-Theta Vault contract
+    */
+    function deposit_stETH() external isDAO payable{ //Note: if the DAO withdraws and then decides to go back, the assets originally used are now stETH, so we use a different function
+        //rstETH_TV.depositETH(); Need to turn this into depositing stETH for when the DAO withdraws and then decides to do it again
     } //deposit the ETH into the RBN contract and create the first layer
     
+     function layerOneBalanceCheck() external view isDAO returns (uint256){
+     uint256 balance = rstETH_TV.balanceOf(address(this));
+      return balance;
+    } // code way to check our contract's balance of the rstETH-Theta token
+
     function checkVaultBalance() external isDAO view returns(uint256 _returnVal) {
       _returnVal = rstETH_TV.shares(msg.sender);
     } //helper function for obtaining the number of shares we have in layer one vault, independently available 
@@ -70,10 +64,18 @@ contract Ribbon_stETH_Covered_Calls {
     function finishLayerOneWithdraw() external isDAO {
       rstETH_TV.completeWithdraw();
     } //complete Layer One withdrawal process, can occur once the next vault option has been minted and your tokens were excluded - 10:00am UTC on Fridays
-    //<LAYER ONE FUNCTIONS END>
+    /*
+    *<LAYER ONE FUNCTIONS END>
+    */
     
-    
-    //<LAYER TWO START>    
+    /*
+    *<LAYER TWO START> Interacting with the rstETH-Theta-Gauge Vault contract
+    */
+   function layerTwoBalanceCheck() external view isDAO returns (uint256){
+     uint256 balance = rstETH_TGV.balanceOf(address(this));
+     return balance;
+   } // code way to check our contract's balance of the rstETH-Theta-Gauge token
+
     function layerTwoWithdraw(uint256 _value, bool claim_rewards) external isDAO{
       rstETH_TGV.withdraw(_value, claim_rewards);
     } //withdraw from Layer Two - exchange rstETH-Theta-Gauge for rstETH-Theta
@@ -84,14 +86,58 @@ contract Ribbon_stETH_Covered_Calls {
      //I am adding this for the rare but possible instance where the DAO has withdrawn from Layer Two and then wants to go back instead of continuing to withdraw from Layer one
     
     //function userCheckpoint ?????
+   /*
+   *<LAYER TWO END>
+   */
 
-   //<LAYER TWO END>
+       /* <Multi-Step Calls> 
+   *These calls are intended to be used by the DAO for simplicitie's sake by stacking as many Layer One and Layer Two functions into one single action
+   * I understand that having all the different Layer functions increase initial contract deployment cost simply because there are more characters for the EVM to gas profile, let alone stacking pre-built functions.
+   * However, I felt it prudent to leave the oppurtunity to call functions step-by-step if neccessary, instead of leaving a crucial function within a multi-step call.
+   *This also makes the DAO's investment strategy more tailorable and able to shift from Layer One to Layer Two and back. 
+   */  
+  
+    function LetsBegin_DepositETH() external isDAO payable { //NOTE NOTE NOTE: Investigate how payable functions work
+      rstETH_TV.depositETH(); 
+      //Event here saying ETH was deposited.
+    } //deposit the ETH into the RBN contract and create the first layer
+
+    function stakeNow() external isDAO {
+      uint256 _balance = this.checkVaultBalance();
+      require(_balance != 0, 'There is no balance within the vault yet.');    
+        this.stake(_balance);
+        //Event here to say that staking occured
+    }
+
+    //Want to make sure that all of these functions can actually occur instantaneously....
+    function BeginWithdrawing() external isDAO {
+      uint256 _balance = this.layerTwoBalanceCheck(); // check our balance
+      this.layerTwoWithdraw(_balance, true);  //withdraw our balance from the second layer
+      this.layerOneWithdraw(_balance); //Begin our withdrawal process from the first layer
+      //Event to say we began withdrawing
+    } 
+
+    //Important, only call this when the next vault option is minted and your shares are FREEEEE
+    function CompleteWithdrawing() external isDAO { 
+      this.finishLayerOneWithdraw();
+      //Check and see how much stETH we get back
+      //Send that stETH back to the DAO's address
+    }
+
+   //Need a function for claiming rewards, problem occuring here is
+   //On the Gauge contract there claimable_tokens and then there is claimable_rewards
+   //Need to determine the differences between them 
+
 }
 
 
 interface IRibbon { //Interface with the ribbon contract
   //Deposit - deposit ETH to be minted into vault shares, - Layer 1
   function depositETH() external payable;
+
+  /*
+  * Need to interface to the other deposit function for stETH
+  */
 
  //RibbonVault.shares - get the # of shares we have in the vault - Layer 1
   //NOTE: this function is placeholder until confirmation that this is the proper way to read a readable value?
@@ -195,27 +241,4 @@ interface RBNtoken {
     function decimals() external view returns (uint256);
     function getTotalShares() external view returns (uint256);
     function getTotalPooledEther() external view returns (uint256);
-}
-
-//ERC20 interface neccessary for interacting with ERC20 tokens
-interface ERC20 {
-  function totalSupply() external view returns (uint256);
-  function balanceOf(address who) external view returns (uint256);
-  function allowance(address owner, address spender)
-    external view returns (uint256);
-  function transfer(address to, uint256 value) external returns (bool);
-  function approve(address spender, uint256 value)
-    external returns (bool);
-  function transferFrom(address from, address to, uint256 value)
-    external returns (bool);
-  event Transfer(
-    address indexed from,
-    address indexed to,
-    uint256 value
-  );
-  event Approval(
-    address indexed owner,
-    address indexed spender,
-    uint256 value
-  );
 }
