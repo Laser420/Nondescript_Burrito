@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 contract Ribbon_stETH_Covered_Calls {
    //Interface with RBN token
-   //Interface with stETH
+    ISTETH stETH;
     address DAO_Treasury;
     IRibbon rstETH_TV;
     IrstETH_Theta_Gauge rstETH_TGV; 
@@ -12,7 +12,7 @@ contract Ribbon_stETH_Covered_Calls {
     
     constructor() {
       //RBN = 
-      //stETH = 
+        stETH = ISTETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84); //stETH address
         DAO_Treasury = 0x7E3Ee99EC9b2aBd42c8c8504dc8195C8dc4942D0; // currently my testnet address - Change to the DAO Address
         rstETH_TV = IRibbon(0x53773E034d9784153471813dacAFF53dBBB78E8c); // Ribbon stETH Covered Call vault option
         rstETH_TGV = IrstETH_Theta_Gauge(0x4e079dCA26A4fE2586928c1319b20b1bf9f9be72); // Ribbon stETh Covered Call Gauge Token vault
@@ -159,8 +159,42 @@ interface RBNtoken {
     
 }
 
-interface stETH {
-  //Interfacing to react with stETH
+  interface ISTETH { //Ribbon allows you to put in raw ETH but withdrawing gives you stETH, so we need to be able to move that stETH out
+    function getBufferedEther(uint256 _amount) external view returns (uint256);
+    function getPooledEthByShares(uint256 _amount)
+        external
+        view
+        returns (uint256);
+    function getSharesByPooledEth(uint256 _amount)
+        external
+        view
+        returns (uint256);
+    function submit(address _referralAddress)
+        external
+        payable
+        returns (uint256);
+    function withdraw(uint256 _amount, bytes32 _pubkeyHash)
+        external
+        returns (uint256);
+    function approve(address _recipient, uint256 _amount)
+        external
+        returns (bool);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address recipient, uint256 amount)
+        external
+        returns (bool);
+    function allowance(address owner, address spender)
+        external
+        view
+        returns (uint256);
+    function transferFrom(
+        address sender,
+        address recipient,
+        uint256 amount
+    ) external returns (bool);
+    function decimals() external view returns (uint256);
+    function getTotalShares() external view returns (uint256);
+    function getTotalPooledEther() external view returns (uint256);
 }
 
 //ERC20 interface neccessary for interacting with ERC20 tokens
