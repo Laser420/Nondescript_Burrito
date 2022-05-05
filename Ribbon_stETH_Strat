@@ -86,9 +86,11 @@ contract Ribbon_stETH_Covered_Calls {
      //I am adding this for the rare but possible instance where the DAO has withdrawn from Layer Two and then wants to go back instead of continuing to withdraw from Layer one
     
     //function userCheckpoint ?????
+
    /*
    *<LAYER TWO END>
    */
+
 
        /* <Multi-Step Calls> 
    *These calls are intended to be used by the DAO for simplicitie's sake by stacking as many Layer One and Layer Two functions into one single action
@@ -117,17 +119,19 @@ contract Ribbon_stETH_Covered_Calls {
       //Event to say we began withdrawing
     } 
 
-    //Important, only call this when the next vault option is minted and your shares are FREEEEE
-    function CompleteWithdrawing() external isDAO { 
+    //Important, only call this when the next vault option is minted and your shares are returned in the form of stETH
+    function CompleteWithdrawingAndRetrieveSTETH() external isDAO { 
       this.finishLayerOneWithdraw();
-      //Check and see how much stETH we get back
-      //Send that stETH back to the DAO's address
+      uint256 _balanceOfstETH = stETH.balanceOf(address(this)); // check our stETH balance
+      stETH.approve(DAO_Treasury, _balanceOfstETH); //approve the treasury to receive our balance
+      stETH.transferFrom(address(this), DAO_Treasury, _balanceOfstETH); // transfer the balance to the DAO treasury
+
+      //Event to say that we completedthewithdrawing
     }
 
    //Need a function for claiming rewards, problem occuring here is
    //On the Gauge contract there claimable_tokens and then there is claimable_rewards
    //Need to determine the differences between them 
-
 }
 
 
