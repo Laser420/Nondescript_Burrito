@@ -186,6 +186,8 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
       *@external
       *def claimable_reward(_user: address, _reward_token: address) -> uint256:
       */
+      
+      //WHAT IS DIFFERENCE BETWEEN CLAIMABLE TOKENS AND CLAIMABLE REWARD TOKENS??? BOTH ARE EXTERNAL FUNCTIONS AND RETURN A UINT256
 
     //ClaimRewards - claiming the RBN rewards
       function claim_rewards() external;
