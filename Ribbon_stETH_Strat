@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 
 contract Ribbon_stETH_Covered_Calls {
    //Interface with RBN token
+    IRBNtoken RBN;
     ISTETH stETH;
     address DAO_Treasury;
     IRibbon rstETH_TV;
@@ -13,12 +14,12 @@ contract Ribbon_stETH_Covered_Calls {
     
     /* Work to be done: 5/9/2022: 
       * Interface with RBN token - steal it from somewhere: not done
-    * Figure out difference between ClaimableRewards and ClaimableTokens: not done
+    * Figure out difference between ClaimableRewards and ClaimableTokens: Done
       * Make a withdrawal function to withdraw RBN rewards: not done
          * 1. Check how much RBN there is pending
          * 2. Withdraw the RBN
-       * Make a function to check for special rewards (manual): not done
-       *Make a function to withdraw that special reward (manual) not done
+       * Make a function to check for reward amount: done
+       *Make a function to withdraw rewards: not done
       * Add to IRibbon interface the function to allow manual stETH re-entry into the contract: not done
       * Interface to stETH: not done
       * Write a function to send stETH back to the DAO: not done
@@ -27,9 +28,9 @@ contract Ribbon_stETH_Covered_Calls {
     
     
     constructor() {
-      //RBN = 
-        stETH = ISTETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84); //stETH address
-        DAO_Treasury = 0x7E3Ee99EC9b2aBd42c8c8504dc8195C8dc4942D0; // currently my testnet address - Change to the DAO Address
+        RBN = IRBNtoken(0x6123B0049F904d730dB3C36a31167D9d4121fA6B); //RBN token address - double check before deploying
+        stETH = ISTETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84); //stETH address - double check before deploying
+        DAO_Treasury = 0x7E3Ee99EC9b2aBd42c8c8504dc8195C8dc4942D0; // currently a testnet address - Change to the DAO Address
         rstETH_TV = IRibbon(0x53773E034d9784153471813dacAFF53dBBB78E8c); // Ribbon stETH Covered Call vault option
         rstETH_TGV = IrstETH_Theta_Gauge(0x4e079dCA26A4fE2586928c1319b20b1bf9f9be72); // Ribbon stETh Covered Call Gauge Token vault
     }
@@ -101,7 +102,14 @@ contract Ribbon_stETH_Covered_Calls {
     } //this function is what is actually called on the Layer Two contract by the Stake function on Layer One (shares must be redeemed to call this function)
      //I am adding this for the rare but possible instance where the DAO has withdrawn from Layer Two and then wants to go back instead of continuing to withdraw from Layer one
     
-    //function userCheckpoint ?????
+    function checkCAR(address token) view external isDAO returns (uint256 _returnVal){
+        _returnVal = rstETH_TGV.claimable_rewards(msg.sender, token);
+        return _returnVal;
+   }//Check how much of a specific reward token we can claim. It should just be RBN token
+
+   function claim_ze_rewardz() external isDAO{
+     rstETH_TGV.claim_rewards();
+   } //Claim our rewards
 
    /*
    *<LAYER TWO END>
@@ -118,36 +126,39 @@ contract Ribbon_stETH_Covered_Calls {
     function LetsBegin_DepositETH() external isDAO payable { //NOTE NOTE NOTE: Investigate how payable functions work
       rstETH_TV.depositETH(); 
       //Event here saying ETH was deposited.
-    } //deposit the ETH into the RBN contract and create the first layer
+    } //deposits the ETH into the RBN contract and create the first layer
 
     function stakeNow() external isDAO {
       uint256 _balance = this.checkVaultBalance();
       require(_balance != 0, 'There is no balance within the vault yet.');    
         this.stake(_balance);
         //Event here to say that staking occured
-    }
+    } // If we have a balance within the RBN vault, stake it.
 
-    //Want to make sure that all of these functions can actually occur instantaneously....
+    //Want to make sure that all of these functions can actually occur instantaneously....Ask Log 
+    //^^^^^^^^^^^^^^^^ASK LOG LOG LOG LOG LOG LOG LOG 
     function BeginWithdrawing() external isDAO {
       uint256 _balance = this.layerTwoBalanceCheck(); // check our balance
       this.layerTwoWithdraw(_balance, true);  //withdraw our balance from the second layer
       this.layerOneWithdraw(_balance); //Begin our withdrawal process from the first layer
       //Event to say we began withdrawing
-    } 
+    }//First withdraw our balance from the second layer. Then begin withdrawing from the first layer
 
-    //Important, only call this when the next vault option is minted and your shares are returned in the form of stETH
+    //Important, only call this when the next vault option is minted with your shares excluded.
     function CompleteWithdrawingAndRetrieveSTETH() external isDAO { 
       this.finishLayerOneWithdraw();
       uint256 _balanceOfstETH = stETH.balanceOf(address(this)); // check our stETH balance
       stETH.approve(DAO_Treasury, _balanceOfstETH); //approve the treasury to receive our balance
       stETH.transferFrom(address(this), DAO_Treasury, _balanceOfstETH); // transfer the balance to the DAO treasury
-
       //Event to say that we completedthewithdrawing
-    }
 
-   //Need a function for claiming rewards, problem occuring here is
-   //On the Gauge contract there claimable_tokens and then there is claimable_rewards
-   //Need to determine the differences between them 
+    } //Finishes the withdrawal process
+
+    function Claim_RBN_Rewards() external isDAO{
+      uint256 rewards = this.checkCAR();
+      require(rewards != 0, "There are no claimable rewards");
+
+    }
 }
 
 
@@ -202,13 +213,10 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
       *@external
       *def claimable_reward(_user: address, _reward_token: address) -> uint256:
       */
-      
-      //WHAT IS DIFFERENCE BETWEEN CLAIMABLE TOKENS AND CLAIMABLE REWARD TOKENS??? BOTH ARE EXTERNAL FUNCTIONS AND RETURN A UINT256
-      //There is ClaimableRewards and then ClaimableTokens....
 
     //ClaimRewards - claiming the RBN rewards
       function claim_rewards() external;
-    //function claim_rewards(address, address) external; - I originally wrote this but I believe this version is only neccessary if you have set a specific receiver of your rewards
+     // function claim_rewards(address, address) external; More complicated version
       /* How the "claim_rewards" function looks on the Layer Two contract: yes this is because I lack confidence in reading Vyper...same old same old
       *
       *@external
@@ -220,10 +228,10 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
 
     //Deposit - the function that allows the user to deposit into the Gauge vault - called by the "Stake" function in Layer one
     function deposit(uint256 _value, address _addr, bool _claim_rewards) external;  //value = number of tokens depositing, address of depositer, do you claim any pending rewards on rst-ETH-Theta-Gauge?
-        //No need to be uncomfortable with how this one works because I found it on the Layer One contract's interface to the layer two contract
+    //No need to be uncomfortable with how this one works because I found it on the Layer One contract's interface to the layer two contract
 }
 
-interface RBNtoken {
+interface IRBNtoken {
     //need to interface with the RBN token to allow our contract to send the RBN rewards elsewhere
     
 }
