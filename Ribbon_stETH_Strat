@@ -10,6 +10,22 @@ contract Ribbon_stETH_Covered_Calls {
     IrstETH_Theta_Gauge rstETH_TGV; 
     //Need to interface to RBN Token at some point.
     
+    
+    /* Work to be done: 5/9/2022: 
+      * Interface with RBN token - steal it from somewhere: not done
+    * Figure out difference between ClaimableRewards and ClaimableTokens: not done
+      * Make a withdrawal function to withdraw RBN rewards: not done
+         * 1. Check how much RBN there is pending
+         * 2. Withdraw the RBN
+       * Make a function to check for special rewards (manual): not done
+       *Make a function to withdraw that special reward (manual) not done
+      * Add to IRibbon interface the function to allow manual stETH re-entry into the contract: not done
+      * Interface to stETH: not done
+      * Write a function to send stETH back to the DAO: not done
+           * Include this function in the 'CompleteWithdrawingAndRetrieveSTETH': not done
+    */
+    
+    
     constructor() {
       //RBN = 
         stETH = ISTETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84); //stETH address
@@ -188,6 +204,7 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
       */
       
       //WHAT IS DIFFERENCE BETWEEN CLAIMABLE TOKENS AND CLAIMABLE REWARD TOKENS??? BOTH ARE EXTERNAL FUNCTIONS AND RETURN A UINT256
+      //There is ClaimableRewards and then ClaimableTokens....
 
     //ClaimRewards - claiming the RBN rewards
       function claim_rewards() external;
@@ -199,7 +216,7 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
       *def claim_rewards(_addr: address = msg.sender, _receiver: address = ZERO_ADDRESS):
       */
 
-    //User_Checkpoint?????? Only one I don't understand yet - ask on RBN discord
+    //User_Checkpoint - boosts rewards on Locked RBN tokens. This contract does not lock the RBN token.
 
     //Deposit - the function that allows the user to deposit into the Gauge vault - called by the "Stake" function in Layer one
     function deposit(uint256 _value, address _addr, bool _claim_rewards) external;  //value = number of tokens depositing, address of depositer, do you claim any pending rewards on rst-ETH-Theta-Gauge?
