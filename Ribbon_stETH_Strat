@@ -5,6 +5,7 @@ pragma solidity ^0.8.0;
 contract Ribbon_stETH_Covered_Calls {
    //Interface with RBN token
     IRBNtoken RBN;
+    address RBNaddress;
     ISTETH stETH;
     address DAO_Treasury;
     IRibbon rstETH_TV;
@@ -13,22 +14,23 @@ contract Ribbon_stETH_Covered_Calls {
     
     
     /* Work to be done: 5/9/2022: 
-      * Interface with RBN token - steal it from somewhere: not done
-    * Figure out difference between ClaimableRewards and ClaimableTokens: Done
-      * Make a withdrawal function to withdraw RBN rewards: not done
-         * 1. Check how much RBN there is pending
-         * 2. Withdraw the RBN
-       * Make a function to check for reward amount: done
-       *Make a function to withdraw rewards: not done
+      * Finish the Interface with RBN token - steal it from somewhere: not done
+      * Use this Interface to send RBN rewards directly to the DAO: not done
+          *Finish the sendRBNrewardtoDAO function for manual sending: not done
+          * complete the primary reward claiming function by sending RBN to DAO: not done
       * Add to IRibbon interface the function to allow manual stETH re-entry into the contract: not done
       * Interface to stETH: not done
       * Write a function to send stETH back to the DAO: not done
            * Include this function in the 'CompleteWithdrawingAndRetrieveSTETH': not done
+      * Write a function to deposit stETH into the vault: not done
+      * Write all of the various events required: not done
+      *Implement these events: not done
     */
     
     
     constructor() {
         RBN = IRBNtoken(0x6123B0049F904d730dB3C36a31167D9d4121fA6B); //RBN token address - double check before deploying
+        RBNaddress = 0x6123B0049F904d730dB3C36a31167D9d4121fA6B;
         stETH = ISTETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84); //stETH address - double check before deploying
         DAO_Treasury = 0x7E3Ee99EC9b2aBd42c8c8504dc8195C8dc4942D0; // currently a testnet address - Change to the DAO Address
         rstETH_TV = IRibbon(0x53773E034d9784153471813dacAFF53dBBB78E8c); // Ribbon stETH Covered Call vault option
@@ -49,15 +51,17 @@ contract Ribbon_stETH_Covered_Calls {
     * Now the investment is in its second layer and holding the rstETH-Theta-Gauge tokens allows the contract access to RBN rewards. 
     * To undo the investment requires first withdrawing from the second layer via calling the Withdraw function on the rstETH-Theta-Gauge contract.
     * Then to undo the first layer requires calling the InitializeWithdraw function before then calling the CompleteWithdraw function.
+    * This contract does not go into the third layer where the claimed RBN rewards are locked for more returns.
     */
 
      //Now we get into Layer One and Layer Two functions. All the Multi-step functions build ontop of these functions. 
+     //I will explain later why I decided to build all of these helper functions instead of minimizing lines and making larger functions.
     
     /*
     *<LAYER ONE FUNCTIONS> Interacting with the rstETH-Theta Vault contract
     */
     function deposit_stETH() external isDAO payable{ //Note: if the DAO withdraws and then decides to go back, the assets originally used are now stETH, so we use a different function
-        //rstETH_TV.depositETH(); Need to turn this into depositing stETH for when the DAO withdraws and then decides to do it again
+        //rstETH_TV.depositETH(); 
     } //deposit the ETH into the RBN contract and create the first layer
     
      function layerOneBalanceCheck() external view isDAO returns (uint256){
@@ -110,18 +114,20 @@ contract Ribbon_stETH_Covered_Calls {
    function claim_ze_rewardz() external isDAO{
      rstETH_TGV.claim_rewards();
    } //Claim our rewards
-
    /*
    *<LAYER TWO END>
    */
+   //One more helper functions
+  //function sendRBNtoDAO - send this contract's balance of RBN to the DAO manually
 
 
        /* <Multi-Step Calls> 
-   *These calls are intended to be used by the DAO for simplicitie's sake by stacking as many Layer One and Layer Two functions into one single action
+   *These calls are intended to be used by the DAO for simplicity's sake by stacking as many Layer One and Layer Two functions into one single action
    * I understand that having all the different Layer functions increase initial contract deployment cost simply because there are more characters for the EVM to gas profile, let alone stacking pre-built functions.
    * However, I felt it prudent to leave the oppurtunity to call functions step-by-step if neccessary, instead of leaving a crucial function within a multi-step call.
    *This also makes the DAO's investment strategy more tailorable and able to shift from Layer One to Layer Two and back. 
    */  
+     //These are the functions I've prepared for the most streamlined usage of this contract
   
     function LetsBegin_DepositETH() external isDAO payable { //NOTE NOTE NOTE: Investigate how payable functions work
       rstETH_TV.depositETH(); 
@@ -151,14 +157,18 @@ contract Ribbon_stETH_Covered_Calls {
       stETH.approve(DAO_Treasury, _balanceOfstETH); //approve the treasury to receive our balance
       stETH.transferFrom(address(this), DAO_Treasury, _balanceOfstETH); // transfer the balance to the DAO treasury
       //Event to say that we completedthewithdrawing
-
     } //Finishes the withdrawal process
 
     function Claim_RBN_Rewards() external isDAO{
-      uint256 rewards = this.checkCAR();
+      uint256 rewards = this.checkCAR(RBNaddress);
       require(rewards != 0, "There are no claimable rewards");
+      this.claim_ze_rewardz(); //Hans look, I am ze German man now
+      /*
+      * Now send these RBN rewards directly to the DAO
+      */
 
-    }
+      //Event to say we claimed the RBN rewards
+    } //Check to see if we have any available RBN rewards and then claim them if we do
 }
 
 
@@ -199,30 +209,12 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
 
     //Withdraw - takes your rstETH-Theta-Gauge and burns it, giving you your rstETH-Theta back. Layer 2 withdrawal.
     function withdraw(uint256, bool) external; 
-      /* How "Withdraw" looks on the Layer Two contract: yes I am putting this here to make it easier for people to vet my code since I'm uncomfy with Vyper
-       * 
-       * @external
-       * @nonreentrant('lock')
-       * def withdraw(_value: uint256, _claim_rewards: bool = False): 
-       */
 
     //ClaimableRewards - see what we can actually claim, views function
     function claimable_rewards(address, address) external view returns (uint256);
-      /* same shit, lack confidence, need to keep reference to Vyper code on page
-      *@view
-      *@external
-      *def claimable_reward(_user: address, _reward_token: address) -> uint256:
-      */
 
     //ClaimRewards - claiming the RBN rewards
       function claim_rewards() external;
-     // function claim_rewards(address, address) external; More complicated version
-      /* How the "claim_rewards" function looks on the Layer Two contract: yes this is because I lack confidence in reading Vyper...same old same old
-      *
-      *@external
-      *@nonreentrant('lock')
-      *def claim_rewards(_addr: address = msg.sender, _receiver: address = ZERO_ADDRESS):
-      */
 
     //User_Checkpoint - boosts rewards on Locked RBN tokens. This contract does not lock the RBN token.
 
