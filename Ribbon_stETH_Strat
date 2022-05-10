@@ -4,7 +4,7 @@ pragma solidity ^0.8.0;
 
 contract Ribbon_stETH_Covered_Calls {
    //Interface with RBN token
-    IRBNtoken RBN;
+    IERC20 RBN;
     address RBNaddress;
     ISTETH stETH;
     address DAO_Treasury;
@@ -13,9 +13,9 @@ contract Ribbon_stETH_Covered_Calls {
     //Need to interface to RBN Token at some point.
     
     
-    /* Work to be done: 5/9/2022: 
+    /* Work to be done: LOL FUCK IF I KNOW/2022: 
       * Finish the Interface with RBN token - steal it from somewhere: not done
-      * Use this Interface to send RBN rewards directly to the DAO: not done
+      * Use above Interface to send RBN rewards directly to the DAO: not done
           *Finish the sendRBNrewardtoDAO function for manual sending: not done
           * complete the primary reward claiming function by sending RBN to DAO: not done
       * Add to IRibbon interface the function to allow manual stETH re-entry into the contract: not done
@@ -29,7 +29,7 @@ contract Ribbon_stETH_Covered_Calls {
     
     
     constructor() {
-        RBN = IRBNtoken(0x6123B0049F904d730dB3C36a31167D9d4121fA6B); //RBN token address - double check before deploying
+        RBN = IERC20(0x6123B0049F904d730dB3C36a31167D9d4121fA6B); //RBN token address - double check before deploying
         RBNaddress = 0x6123B0049F904d730dB3C36a31167D9d4121fA6B;
         stETH = ISTETH(0xae7ab96520DE3A18E5e111B5EaAb095312D7fE84); //stETH address - double check before deploying
         DAO_Treasury = 0x7E3Ee99EC9b2aBd42c8c8504dc8195C8dc4942D0; // currently a testnet address - Change to the DAO Address
@@ -57,9 +57,7 @@ contract Ribbon_stETH_Covered_Calls {
      //Now we get into Layer One and Layer Two functions. All the Multi-step functions build ontop of these functions. 
      //I will explain later why I decided to build all of these helper functions instead of minimizing lines and making larger functions.
     
-    /*
-    *<LAYER ONE FUNCTIONS> Interacting with the rstETH-Theta Vault contract
-    */
+    //<LAYER ONE FUNCTIONS> Interacting with the rstETH-Theta Vault contract
     function deposit_stETH() external isDAO payable{ //Note: if the DAO withdraws and then decides to go back, the assets originally used are now stETH, so we use a different function
         //rstETH_TV.depositETH(); 
     } //deposit the ETH into the RBN contract and create the first layer
@@ -86,16 +84,13 @@ contract Ribbon_stETH_Covered_Calls {
       rstETH_TV.completeWithdraw();
     } //complete Layer One withdrawal process, can occur once the next vault option has been minted and your tokens were excluded - 10:00am UTC on Fridays
     /*
-    *<LAYER ONE FUNCTIONS END>
-    */
-    
-    /*
-    *<LAYER TWO START> Interacting with the rstETH-Theta-Gauge Vault contract
+    *<LAYER ONE FUNCTIONS END 
+    *<LAYER TWO FUNCTIONS START:  
     */
    function layerTwoBalanceCheck() external view isDAO returns (uint256){
      uint256 balance = rstETH_TGV.balanceOf(address(this));
      return balance;
-   } // code way to check our contract's balance of the rstETH-Theta-Gauge token
+   } // backend method to check our contract's balance of the rstETH-Theta-Gauge token
 
     function layerTwoWithdraw(uint256 _value, bool claim_rewards) external isDAO{
       rstETH_TGV.withdraw(_value, claim_rewards);
@@ -113,11 +108,17 @@ contract Ribbon_stETH_Covered_Calls {
 
    function claim_ze_rewardz() external isDAO{
      rstETH_TGV.claim_rewards();
-   } //Claim our rewards
-   /*
-   *<LAYER TWO END>
-   */
-   //One more helper functions
+   } //Claim our RBN rewards
+
+  function check_stETHBalance() external view isDAO returns (uint256 _stETHbalance){
+   return stETH.balanceOf(address(this));
+  } // helper to check this contract's stETH balance
+
+  function send_stETHtoDAO(uint256 amount) external isDAO{
+   stETH.approve(DAO_Treasury, amount); //approve the treasury to receive our balance
+   stETH.transferFrom(address(this), DAO_Treasury, amount);
+   } //manually send an inputed amount of stETH to the DAO
+
   //function sendRBNtoDAO - send this contract's balance of RBN to the DAO manually
 
 
@@ -141,8 +142,6 @@ contract Ribbon_stETH_Covered_Calls {
         //Event here to say that staking occured
     } // If we have a balance within the RBN vault, stake it.
 
-    //Want to make sure that all of these functions can actually occur instantaneously....Ask Log 
-    //^^^^^^^^^^^^^^^^ASK LOG LOG LOG LOG LOG LOG LOG 
     function BeginWithdrawing() external isDAO {
       uint256 _balance = this.layerTwoBalanceCheck(); // check our balance
       this.layerTwoWithdraw(_balance, true);  //withdraw our balance from the second layer
@@ -150,12 +149,11 @@ contract Ribbon_stETH_Covered_Calls {
       //Event to say we began withdrawing
     }//First withdraw our balance from the second layer. Then begin withdrawing from the first layer
 
-    //Important, only call this when the next vault option is minted with your shares excluded.
+    // *Important*, only call this when the next vault option is minted with your shares excluded.
     function CompleteWithdrawingAndRetrieveSTETH() external isDAO { 
       this.finishLayerOneWithdraw();
-      uint256 _balanceOfstETH = stETH.balanceOf(address(this)); // check our stETH balance
-      stETH.approve(DAO_Treasury, _balanceOfstETH); //approve the treasury to receive our balance
-      stETH.transferFrom(address(this), DAO_Treasury, _balanceOfstETH); // transfer the balance to the DAO treasury
+      uint256 _balanceOfstETH = this.check_stETHBalance(); // check our stETH balance
+      this.send_stETHtoDAO(_balanceOfstETH); // send the stETH balance to the DAO
       //Event to say that we completedthewithdrawing
     } //Finishes the withdrawal process
 
@@ -223,11 +221,6 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
     //No need to be uncomfortable with how this one works because I found it on the Layer One contract's interface to the layer two contract
 }
 
-interface IRBNtoken {
-    //need to interface with the RBN token to allow our contract to send the RBN rewards elsewhere
-    
-}
-
   interface ISTETH { //Ribbon allows you to put in raw ETH but withdrawing gives you stETH, so we need to be able to move that stETH out
     function getBufferedEther(uint256 _amount) external view returns (uint256);
     function getPooledEthByShares(uint256 _amount)
@@ -264,4 +257,20 @@ interface IRBNtoken {
     function decimals() external view returns (uint256);
     function getTotalShares() external view returns (uint256);
     function getTotalPooledEther() external view returns (uint256);
+}
+
+interface IERC20 {
+    event Transfer(address indexed from, address indexed to, uint256 value);
+    event Approval(address indexed owner, address indexed spender, uint256 value);
+
+    function totalSupply() external view returns (uint256);
+    function balanceOf(address account) external view returns (uint256);
+    function transfer(address to, uint256 amount) external returns (bool);
+    function allowance(address owner, address spender) external view returns (uint256);
+    function approve(address spender, uint256 amount) external returns (bool);
+    function transferFrom(
+        address from,
+        address to,
+        uint256 amount
+    ) external returns (bool);
 }
