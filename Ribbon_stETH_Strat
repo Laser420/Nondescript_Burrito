@@ -9,18 +9,14 @@ contract Ribbon_stETH_Covered_Calls {
     ISTETH stETH;
     address DAO_Treasury;
     IRibbon rstETH_TV;
-    IrstETH_Theta_Gauge rstETH_TGV; 
-    //Need to interface to RBN Token at some point.
-    
+    IrstETH_Theta_Gauge rstETH_TGV; .
     
     /* Work to be done: LOL FUCK IF I KNOW/2022: 
-      * Add to IRibbon interface the function to allow manual stETH re-entry into the contract: not done
-      * Write a function to deposit stETH into the vault: not done
+      * Add to IRibbon interface the function to allow manual stETH re-entry into the contract: Done
+      * Write a function to deposit stETH into the vault: Done
       * Write all of the various events required: not done
       *Implement these events: not done
     */
-    
-    
     constructor() {
         RBN = IERC20(0x6123B0049F904d730dB3C36a31167D9d4121fA6B); //RBN token address - double check before deploying
         RBNaddress = 0x6123B0049F904d730dB3C36a31167D9d4121fA6B;
@@ -36,7 +32,7 @@ contract Ribbon_stETH_Covered_Calls {
         _;
     }
 
-    /* This financial strategy has two primary layers to it.
+    /* This financial strategy has two layers to it. Like an onion, onions have layers.
     * The first layer consists of a deposit of raw ETH into the rstETH-Theta vault. The raw ETH is turned into stETH by RBN before depositing.
     * Now this stETH is sitting inside the rstETH-Theta vault in the form of rstETH-Theta. This is the first layer of investment. 
     * To enter the second layer of investment and earn more rewards requires calling the Stake function on the first layer contract.
@@ -47,76 +43,64 @@ contract Ribbon_stETH_Covered_Calls {
     * This contract does not go into the third layer where the claimed RBN rewards are locked for more returns.
     */
 
-     //Now we get into Layer One and Layer Two functions. All the Multi-step functions build ontop of these functions. 
-     //I will explain later why I decided to build all of these helper functions instead of minimizing lines and making larger functions.
-    
-    //<Helper functions start:> //Im going so crazy I've started using HTML tags. Fuck my life
-    function deposit_stETH() external isDAO payable{ //Note: if the DAO withdraws and then decides to go back, the assets originally used are now stETH, so we use a different function
-        //rstETH_TV.depositETH(); 
-    } //deposit the ETH into the RBN contract and create the first layer
-    
-     function layerOneBalanceCheck() external view isDAO returns (uint256){
+     //Now we get into the various helper funtions. All the Multi-step functions build ontop of these functions. 
+     //Every helper function has an uppercase "H" as a prefix. These functions are not helper functions in the traditional sense, they can still affect your vault positions.
+     //I will explain later why I decided to build all of these helper functions.
+
+     function HlayerOneBalanceCheck() external view isDAO returns (uint256){
      uint256 balance = rstETH_TV.balanceOf(address(this));
       return balance;
     } //backend way to check our contract's balance of the rstETH-Theta token
 
-    function checkVaultBalance() external isDAO view returns(uint256 _returnVal) {
+    function HcheckVaultBalance() external isDAO view returns(uint256 _returnVal) {
       _returnVal = rstETH_TV.shares(msg.sender);
     } //helper function for obtaining the number of shares we have in layer one vault, independently available 
     
-    function stake(uint256 sharesToStake) external isDAO { 
+    function Hstake(uint256 sharesToStake) external isDAO { 
       rstETH_TV.stake(sharesToStake);
     } // stakes the shares we have in layer one and puts them ito layer two
   
-    function layerOneWithdraw(uint256 amtToWithdraw) external isDAO {
+    function HlayerOneWithdraw(uint256 amtToWithdraw) external isDAO {
       rstETH_TV.initiateWithdraw(amtToWithdraw);
     } //begin Layer One withdrawal process, marks your shares to be excluded from the next minting option.    \
     
-    function finishLayerOneWithdraw() external isDAO {
+    function HfinishLayerOneWithdraw() external isDAO {
       rstETH_TV.completeWithdraw();
     } //complete Layer One withdrawal process, can occur once the next vault option has been minted and your tokens were excluded - 10:00am UTC on Fridays
   
-    function layerTwoBalanceCheck() external view isDAO returns (uint256){
+    function HlayerTwoBalanceCheck() external view isDAO returns (uint256){
      uint256 balance = rstETH_TGV.balanceOf(address(this));
      return balance;
     } // backend method to check our contract's balance of the rstETH-Theta-Gauge token
 
-    function layerTwoWithdraw(uint256 _value, bool claim_rewards) external isDAO{
+    function HlayerTwoWithdraw(uint256 _value, bool claim_rewards) external isDAO{
       rstETH_TGV.withdraw(_value, claim_rewards);
     } //withdraw from Layer Two - exchange rstETH-Theta-Gauge for rstETH-Theta
     
-    function layerTwoDeposit(uint256 _value, address _addr, bool _claim_rewards) external isDAO { //make sure _addr is msg.sender
+    function HlayerTwoDeposit(uint256 _value, address _addr, bool _claim_rewards) external isDAO { //make sure _addr is msg.sender
         rstETH_TGV.deposit(_value, _addr, _claim_rewards);
     } //this function is what is actually called on the Layer Two contract by the Stake function on Layer One (shares must be redeemed to call this function)
      //I am adding this for the rare but possible instance where the DAO has withdrawn from Layer Two and then wants to go back instead of continuing to withdraw from Layer one
     
-    function checkClaimableRBNTokens() external isDAO returns (uint256 _returnVal){
+    function HcheckClaimableRBNTokens() external isDAO returns (uint256 _returnVal){
         _returnVal = rstETH_TGV.claimable_tokens(msg.sender);
         return _returnVal;
-   }//Check how much RBN token this contract can claim
-    //See what we can actually claim, it isn't a views function because of a mistake in the Ribbon Gauge contract
-    //They get around it by using the frontend .callStatic method. We don't get to do this because this is all backend baby. So it costs some gas to see our rewards.
-    //Essentially.....don't call this function for no damn reason. Ribbon token rewards are granted on specific dates and times known as Epochs
+   }//Check how much RBN token this contract can claim - this costs GAS, I'll explain why in a bit.
     //Only claim your rewards after the Epoch. Please. 
 
-   function claim_ze_rewardz() external isDAO{
+   function Hclaim_ze_rewardz() external isDAO{
      rstETH_TGV.claim_rewards();
    } //Claim our RBN rewards - Der Krieg ist verloren
 
-  function send_stETHtoDAO(uint256 amount) external isDAO{
+  function Hsend_stETHtoDAO(uint256 amount) external isDAO{
    stETH.approve(DAO_Treasury, amount); //approve the treasury to receive our balance
    stETH.transferFrom(address(this), DAO_Treasury, amount); // transfer stETH from our address to the DAO treasury
    } //manually send an inputted amount of stETH to the DAO
 
-  function sendRBNtoDAO(uint256 amount) external isDAO {
+  function HsendRBNtoDAO(uint256 amount) external isDAO {
     RBN.approve(DAO_Treasury, amount);
     RBN.transferFrom(address(this),DAO_Treasury, amount);
-    }//Manually send an inputted amount of RBN to the DAO
-
-  //One more helper to deposit stETH into the vault instead of 
-  function deposit_stETH(uint256 amount) external isDAO{
-    //call the interface depositStETh function
-  }
+    }//Manually sends an inputted amount of RBN to the DAO
 
    /* <Primary Calls> 
    *These calls are intended to be used by the DAO for simplicity's sake by stacking as many Layer One and Layer Two functions into one single action
@@ -132,38 +116,40 @@ contract Ribbon_stETH_Covered_Calls {
     } //deposits the ETH into the RBN contract and create the first layer
 
     function DepositstETH() external isDAO payable { //NOTE NOTE NOTE: Investigate how payable functions work
-     // rstETH_TV.depositETH(); 
+     uint256 stETHbal = stETH.balanceOf(address(this));
+     rstETH_TV.depositYieldToken(stETHbal); 
       //Event here saying ETH was deposited.
-    } //deposits stETH into 
+    } //deposits stETH into the vault, gets you the same place as depositing ETH
+    //if the DAO withdraws and then decides to go back, the assets originally used are now stETH, so we use this function to redeposit stETH
 
     function stakeNow() external isDAO {
-      uint256 _balance = this.checkVaultBalance();
+      uint256 _balance = this.HcheckVaultBalance();
       require(_balance != 0, 'There is no balance within the vault yet.');    
-        this.stake(_balance);
+        this.Hstake(_balance);
         //Event here to say that staking occured
     } // If we have a balance within the RBN vault, stake it.
 
     function BeginWithdrawing() external isDAO {
-      uint256 _balance = this.layerTwoBalanceCheck(); // check our balance
-      this.layerTwoWithdraw(_balance, true);  //withdraw our balance from the second layer
-      this.layerOneWithdraw(_balance); //Begin our withdrawal process from the first layer
+      uint256 _balance = this.HlayerTwoBalanceCheck(); // check our balance
+      this.HlayerTwoWithdraw(_balance, true);  //withdraw our balance from the second layer
+      this.HlayerOneWithdraw(_balance); //Begin our withdrawal process from the first layer
       //Event to say we began withdrawing
     }//First withdraw our balance from the second layer. Then begin withdrawing from the first layer
 
     // *Important*, only call this when the next vault option was minted with your shares excluded.
     function CompleteWithdrawingAndRetrieveSTETH() external isDAO { 
-      this.finishLayerOneWithdraw();
+      this.HfinishLayerOneWithdraw();
       uint256 _balanceOfstETH = stETH.balanceOf(address(this)); // check our stETH balance
-      this.send_stETHtoDAO(_balanceOfstETH); // send the stETH balance to the DAO
+      this.Hsend_stETHtoDAO(_balanceOfstETH); // send the stETH balance to the DAO
       //Event to say that we completedthewithdrawing
     } //Finishes the withdrawal process
 
     function Claim_RBN_Rewards() external isDAO{
-      uint256 tokenBal = this.checkClaimableRBNTokens();
+      uint256 tokenBal = this.HcheckClaimableRBNTokens();
       require(tokenBal != 0, "There are no claimable rewards");
-      this.claim_ze_rewardz(); //Hans look, I am ze German man now - claim our eligible rewards
+      this.Hclaim_ze_rewardz(); //Hans look, I am ze German man now - claim our eligible rewards
       uint256 RBNbalance = RBN.balanceOf(address(this)); //just because I'm paranoid, check our new RBN token balance
-      this.sendRBNtoDAO(RBNbalance); //send our new RBN token balance to the DAO
+      this.HsendRBNtoDAO(RBNbalance); //send our new RBN token balance to the DAO
       //Event to say we claimed the RBN rewards
     } //Check to see if we have any available RBN rewards and then claim them if we do
     //I have explained this next to the Helper function and I'll say it again.....
@@ -171,14 +157,12 @@ contract Ribbon_stETH_Covered_Calls {
     //Only claim your rewards after the Epoch. Please. Or else you just waste gas.
 }
 
-
 interface IRibbon { //Interface with the ribbon contract
   //Deposit - deposit ETH to be minted into vault shares, - Layer 1
   function depositETH() external payable;
 
-  /*
-  * Need to interface to the other deposit function for stETH
-  */
+  //Deposits stETH into the vault - uint256 is the amount
+  function depositYieldToken(uint256) external;
 
  //RibbonVault.shares - get the # of shares we have in the vault - Layer 1
   //NOTE: this function is placeholder until confirmation that this is the proper way to read a readable value?
