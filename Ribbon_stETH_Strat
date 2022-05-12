@@ -9,7 +9,7 @@ contract Ribbon_stETH_Covered_Calls {
     ISTETH stETH;
     address DAO_Treasury;
     IRibbon rstETH_TV;
-    IrstETH_Theta_Gauge rstETH_TGV; .
+    IrstETH_Theta_Gauge rstETH_TGV;
     
     /* Work to be done: LOL FUCK IF I KNOW/2022: 
       * Add to IRibbon interface the function to allow manual stETH re-entry into the contract: Done
