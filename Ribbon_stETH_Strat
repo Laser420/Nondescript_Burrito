@@ -14,14 +14,14 @@ contract Ribbon_stETH_Covered_Calls {
     
     
     /* Work to be done: LOL FUCK IF I KNOW/2022: 
-      * Finish the Interface with RBN token - steal it from somewhere: not done
-      * Use above Interface to send RBN rewards directly to the DAO: not done
-          *Finish the sendRBNrewardtoDAO function for manual sending: not done
+      * Finish the Interface with RBN token - steal it from somewhere: Done
+      * Use above Interface to send RBN rewards directly to the DAO: Done
+          *Finish the sendRBNrewardtoDAO function for manual sending: Done
           * complete the primary reward claiming function by sending RBN to DAO: not done
       * Add to IRibbon interface the function to allow manual stETH re-entry into the contract: not done
       * Interface to stETH: not done
-      * Write a function to send stETH back to the DAO: not done
-           * Include this function in the 'CompleteWithdrawingAndRetrieveSTETH': not done
+      * Write a function to send stETH back to the DAO: Done
+           * Include this function in the 'CompleteWithdrawingAndRetrieveSTETH': Done
       * Write a function to deposit stETH into the vault: not done
       * Write all of the various events required: not done
       *Implement these events: not done
@@ -101,25 +101,27 @@ contract Ribbon_stETH_Covered_Calls {
     } //this function is what is actually called on the Layer Two contract by the Stake function on Layer One (shares must be redeemed to call this function)
      //I am adding this for the rare but possible instance where the DAO has withdrawn from Layer Two and then wants to go back instead of continuing to withdraw from Layer one
     
-    function checkCAR(address token) view external isDAO returns (uint256 _returnVal){
-        _returnVal = rstETH_TGV.claimable_rewards(msg.sender, token);
+    function checkClaimableRBNTokens() external isDAO returns (uint256 _returnVal){
+        _returnVal = rstETH_TGV.claimable_tokens(msg.sender);
         return _returnVal;
-   }//Check how much of a specific reward token we can claim. It should just be RBN token
+   }//Check how much RBN token this contract can claim
+    //See what we can actually claim, it isn't a views function because of a mistake in the Ribbon Gauge contract
+    //They get around it by using the frontend .callStatic method. We don't get to do this because this is all backend baby. So it costs some gas to see our rewards.
+    //Essentially.....don't call this function for no damn reason. Ribbon token rewards are granted on specific dates and times known as Epochs
+    //Only claim your rewards after the Epoch. Please. I still left this helper function instead of combining it
 
    function claim_ze_rewardz() external isDAO{
      rstETH_TGV.claim_rewards();
-   } //Claim our RBN rewards
-
-  function check_stETHBalance() external view isDAO returns (uint256 _stETHbalance){
-   return stETH.balanceOf(address(this));
-  } // helper to check this contract's stETH balance
+   } //Claim our RBN rewards - Der Krieg ist verloren
 
   function send_stETHtoDAO(uint256 amount) external isDAO{
    stETH.approve(DAO_Treasury, amount); //approve the treasury to receive our balance
-   stETH.transferFrom(address(this), DAO_Treasury, amount);
+   stETH.transferFrom(address(this), DAO_Treasury, amount); // transfer stETH from our address to the DAO treasury
    } //manually send an inputed amount of stETH to the DAO
 
-  //function sendRBNtoDAO - send this contract's balance of RBN to the DAO manually
+  function sendRBNtoDAO() external isDAO {
+
+  }
 
 
        /* <Multi-Step Calls> 
@@ -152,14 +154,14 @@ contract Ribbon_stETH_Covered_Calls {
     // *Important*, only call this when the next vault option is minted with your shares excluded.
     function CompleteWithdrawingAndRetrieveSTETH() external isDAO { 
       this.finishLayerOneWithdraw();
-      uint256 _balanceOfstETH = this.check_stETHBalance(); // check our stETH balance
+      uint256 _balanceOfstETH = stETH.balanceOf(address(this)); // check our stETH balance
       this.send_stETHtoDAO(_balanceOfstETH); // send the stETH balance to the DAO
       //Event to say that we completedthewithdrawing
     } //Finishes the withdrawal process
 
     function Claim_RBN_Rewards() external isDAO{
-      uint256 rewards = this.checkCAR(RBNaddress);
-      require(rewards != 0, "There are no claimable rewards");
+      uint256 tokenBal = this.checkClaimableRBNTokens();
+      require(tokenBal != 0, "There are no claimable rewards");
       this.claim_ze_rewardz(); //Hans look, I am ze German man now
       /*
       * Now send these RBN rewards directly to the DAO
@@ -167,6 +169,9 @@ contract Ribbon_stETH_Covered_Calls {
 
       //Event to say we claimed the RBN rewards
     } //Check to see if we have any available RBN rewards and then claim them if we do
+    //I have explained this next to the Helper function and I'll say it again.....
+    //Don't call this function for no damn reason. Ribbon token rewards are granted on specific dates and times known as Epochs
+    //Only claim your rewards after the Epoch. Please. Or else you just waste gas.
 }
 
 
@@ -207,9 +212,10 @@ interface IrstETH_Theta_Gauge {  //Interfacing with rstETH-Theta-Gauge - this co
 
     //Withdraw - takes your rstETH-Theta-Gauge and burns it, giving you your rstETH-Theta back. Layer 2 withdrawal.
     function withdraw(uint256, bool) external; 
-
-    //ClaimableRewards - see what we can actually claim, views function
-    function claimable_rewards(address, address) external view returns (uint256);
+    
+    //See what we can actually claim, it isn't a views function because of a "bug"(more like a mistake) in the Ribbon Gauge contract
+    //They get around it by using the frontend .callStatic method. We don't get to do this because this is all backend baby. So it costs some gas to see our rewards.
+    function claimable_tokens(address) external returns (uint256);
 
     //ClaimRewards - claiming the RBN rewards
       function claim_rewards() external;
