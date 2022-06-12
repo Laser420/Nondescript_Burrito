@@ -42,19 +42,25 @@ contract BalancerBriber {
     }
 
 
-
+    //MAKE SURE YOU ADD THE CORRECT AMOUNT OF ZEROES TO THE TRANSACTION QUANTITY
     function executeBribeGovernor(uint256 amt) external isGovernor {
         
         //Approve this transaction with FEI
          feiInterface.approve(address(this), amt);
 
-        //
+        //Run the transaction for the proposal address, using the FEI token, in the 
         BalancerBribeVault.depositBribeERC20(proposal, 0x956F47F50A910163D8BF957Cf5846D573E7f87CA, amt);
 
     }
 
-   function executeBribeCouncil() external isTribeCouncil {
-       //run functionality 
+    //MAKE SURE YOU ADD THE CORRECT AMOUNT OF ZEROES TO THE TRANSACTION QUANTITY
+   function executeBribeCouncil(uint256 amt) external isTribeCouncil {
+
+         //Approve this transaction with FEI
+         feiInterface.approve(address(this), amt);
+
+        //Run the transaction for the proposal address, using the FEI token, in the 
+        BalancerBribeVault.depositBribeERC20(proposal, 0x956F47F50A910163D8BF957Cf5846D573E7f87CA, amt);
    }
 }
 
