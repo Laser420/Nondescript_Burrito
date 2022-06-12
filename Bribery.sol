@@ -82,4 +82,10 @@ interface IERC20 {
 }
 
 
+// Address Glossary:
+// Hidden Hand balancer briber address: https://etherscan.io/address/0x7Cdf753b45AB0729bcFe33DC12401E55d28308A9
+// Hidden Hand bribe vault: https://etherscan.io/address/0x9ddb2da7dd76612e0df237b89af2cf4413733212
+// B-30FEI-70WETH-gauge address: https://etherscan.io/address/0x4f9463405f5bc7b4c1304222c1df76efbd81a407
+// FEI address: https://etherscan.io/address/0x956F47F50A910163D8BF957Cf5846D573E7f87CA
+
 
