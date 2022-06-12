@@ -38,25 +38,17 @@ contract BalancerBriber {
     }
 
 
-    // Low level timelock functionality - currently commented out
 
-    /*
-    function beginBribeGov() public isGovernor {
-        lastCall = block.timestamp;
-    }
-    */
+    function executeBribeGovernor() external isGovernor {
 
-    /*
-    function executeBribeGov() external isGovernor {
-        require(block.timestamp - lastCall > 24 hours, 'Need to wait 5 hours');
-            //run functionality
-        lastCall = block.timestamp;
     }
-    */
 
    function executeBribeCouncil() external isTribeCouncil {
        //run functionality 
    }
+
+
+   
 
 }
 
@@ -93,5 +85,3 @@ interface IERC20 {
         uint256 amount
     ) external returns (bool);
 }
-
-
