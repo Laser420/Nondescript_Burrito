@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: GPL-3.0
+//Made by fishfish.eth's unpaid intern. Contact him to contact me. 
 
 pragma solidity >=0.7.0;
 
