@@ -14,6 +14,7 @@ contract BalancerBriber {
     constructor() {
 
         //Proposal value found in this transaction hash: https://etherscan.io/tx/0x31df193a1a3b677025cb0fd5312306ed7bc2b3341626c7d8bc7b327597aa5190
+        //Transaction executed by never#7298 - thank you brother. I am broke. - Fishy's unpaid intern
         //Added '0x-' prefix to properly compile.
         proposal = 0x12886ee1cc4ab69429f4989a2721786216267613abdefa3edfdaff4b446904ab;
         governor = 0x0000000000000000000000000000000000000000; // Trusted individual able to execute the bribe - set by the Tribe Council. 
