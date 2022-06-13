@@ -20,7 +20,7 @@ contract BalancerBriber {
         governor = 0x0000000000000000000000000000000000000000; // Trusted individual able to execute the bribe - set by the Tribe Council. 
         tribeCouncil = 0x2EC598d8e3DF35E5D6F13AE2f05a7bB2704e92Ea; //set this address to the tribe council multi-cig address
         BalancerBribeVault = IBalancerBriber(0x7Cdf753b45AB0729bcFe33DC12401E55d28308A9); //BalancerBribeVault address
-        feiInterface = IERC20(0x956F47F50A910163D8BF957Cf5846D573E7f87CA);
+        feiInterface = IERC20(0x956F47F50A910163D8BF957Cf5846D573E7f87CA); //Interface to the FEI token address
     }
 
     modifier isTribeCouncil() {
