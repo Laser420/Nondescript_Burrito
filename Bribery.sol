@@ -12,6 +12,9 @@ contract BalancerBriber {
     IERC20 feiInterface;
     
     constructor() {
+
+        //Proposal value found in this transaction hash: https://etherscan.io/tx/0x31df193a1a3b677025cb0fd5312306ed7bc2b3341626c7d8bc7b327597aa5190
+        //Added '0x-' prefix to properly compile.
         proposal = 0x12886ee1cc4ab69429f4989a2721786216267613abdefa3edfdaff4b446904ab;
         governor = 0x0000000000000000000000000000000000000000; // Trusted individual able to execute the bribe - set by the Tribe Council. 
         tribeCouncil = 0x2EC598d8e3DF35E5D6F13AE2f05a7bB2704e92Ea; //set this address to the tribe council multi-cig address
