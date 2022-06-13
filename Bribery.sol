@@ -50,7 +50,7 @@ contract BalancerBriber {
         //Approve this transaction with FEI
          feiInterface.approve(address(this), amt);
 
-         //Approve this transaction with the balancerBribeAdd
+         //Approve this transaction with the balancerBribeAddress
          feiInterface.approve(balancerBribeAdd, amt);
 
         //Run the transaction for the proposal address, using the FEI token, in the 
@@ -64,7 +64,7 @@ contract BalancerBriber {
          //Approve this transaction with FEI
          feiInterface.approve(address(this), amt);
          
-         //Approve this transaction with the balancerBribeAdd
+         //Approve this transaction with the balancerBribeAddress
          feiInterface.approve(balancerBribeAdd, amt);
 
         //Run the transaction for the proposal address, using the FEI token, in the 
