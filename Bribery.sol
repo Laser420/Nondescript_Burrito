@@ -40,17 +40,13 @@ contract BalancerBriber {
     //Withdraw any FEI in this contract directly to the Tribe Council Address - nowhere else
     function withdrawFEI() public isTribeCouncil {
         uint256 bal = feiInterface.balanceOf(address(this));
-        feiInterface.approve(address(this), bal);
         feiInterface.transferFrom(address(this), tribeCouncil, bal);
     }
 
 
     //MAKE SURE YOU ADD THE CORRECT AMOUNT OF ZEROES TO THE TRANSACTION QUANTITY
     function executeBribeGovernor(uint256 amt) external isGovernor {
-        
-        //Approve this transaction with FEI
-         feiInterface.approve(address(this), amt);
-
+      
          //Approve this transaction with the balancerBribeAddress
          feiInterface.approve(balancerBribeAdd, amt);
 
@@ -62,9 +58,6 @@ contract BalancerBriber {
     //MAKE SURE YOU ADD THE CORRECT AMOUNT OF ZEROES TO THE TRANSACTION QUANTITY
    function executeBribeCouncil(uint256 amt) external isTribeCouncil {
 
-         //Approve this transaction with FEI
-         feiInterface.approve(address(this), amt);
-         
          //Approve this transaction with the balancerBribeAddress
          feiInterface.approve(balancerBribeAdd, amt);
 
